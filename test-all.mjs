@@ -101,8 +101,10 @@ console.log('\n4. Data contract validation');
 const systemFiles = [
   'CLAUDE.md', 'VERSION', 'DATA_CONTRACT.md',
   'modes/_shared.md', 'modes/_profile.template.md',
-  'modes/oferta.md', 'modes/pdf.md', 'modes/scan.md',
-  'templates/states.yml', 'templates/cv-template.html',
+  'modes/oferta.md', 'modes/scan.md',
+  'templates/states.yml',
+  'templates/cv/Lebenslauf_Gaurav_Kulkarni_DE.docx', 'templates/cv/CV_Gaurav_Kulkarni_EN.docx',
+  'templates/cv/Anschreiben_Gaurav_Kulkarni_DeutscheBoerse_DE.docx', 'templates/cv/CoverLetter_Gaurav_Kulkarni_DeutscheBoerse_EN.docx',
   '.claude/skills/career-ops/SKILL.md',
 ];
 

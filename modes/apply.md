@@ -4,8 +4,25 @@ Modo interactivo para cuando el candidato está rellenando un formulario de apli
 
 ## Requisitos
 
-- **Mejor con Playwright visible**: En modo visible, el candidato ve el navegador y Claude puede interactuar con la página.
+- **Mejor con el script asistente**: `node apply-assistant.mjs` abre un navegador visible, rellena campos automáticamente desde `config/profile.yml`, adjunta PDFs por código de referencia, e inyecta respuestas generadas. Usar para portales conocidos (Greenhouse, Lever, Ashby, Workday, SmartRecruiters, BambooHR).
+- **Playwright manual**: Para portales custom o formularios multi-paso complejos. Claude lee la página y genera respuestas para copy-paste.
 - **Sin Playwright**: el candidato comparte un screenshot o pega las preguntas manualmente.
+
+## Script Asistente (preferido)
+
+Cuando hay PDFs generados para un código de referencia y el portal es un ATS conocido:
+
+1. Preparar respuestas: leer Section G del report (si existe), generar respuestas para preguntas abiertas
+2. Guardar respuestas en `/tmp/answers-{REF}.json` como `{"label": "respuesta", ...}`
+3. Ejecutar:
+   ```bash
+   node apply-assistant.mjs "{apply_url}" --ref={REF} --answers=/tmp/answers-{REF}.json
+   ```
+4. El script rellena automáticamente: nombre, email, teléfono, LinkedIn, portfolio, ubicación, salario, visa
+5. El script adjunta: Lebenslauf/CV + Anschreiben/CoverLetter PDFs del directorio `output/`
+6. El script inyecta respuestas de texto del archivo answers.json
+7. **NUNCA hace click en Submit** — el candidato revisa y envía manualmente
+8. Si hay campos sin rellenar, el script los reporta como JSON — ayudar al candidato a completarlos
 
 ## Workflow
 

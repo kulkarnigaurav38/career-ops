@@ -1,0 +1,203 @@
+- generic [active] [ref=e1]:
+  - img "Banner" [ref=e3]
+  - main [ref=e4]:
+    - generic [ref=e5]:
+      - link "Contentful Logo" [ref=e7] [cursor=pointer]:
+        - /url: https://www.contentful.com/careers/
+        - img "Contentful Logo" [ref=e8]
+      - generic [ref=e9]:
+        - link "Back to jobs" [ref=e10] [cursor=pointer]:
+          - /url: https://job-boards.greenhouse.io/contentful
+          - img [ref=e11]
+          - text: Back to jobs
+        - generic [ref=e14]:
+          - generic [ref=e15]:
+            - heading "Backend Software Engineer (f/m/d)" [level=1] [ref=e16]
+            - generic [ref=e17]:
+              - img [ref=e18]
+              - generic [ref=e20]: Berlin, Berlin, Germany
+          - button "Apply" [ref=e21] [cursor=pointer]
+        - generic [ref=e22]:
+          - generic [ref=e23]:
+            - heading "About the opportunity" [level=2] [ref=e24]
+            - paragraph [ref=e25]: Contentful is building new foundational capabilities to enable customers to build personalized, AI-enhanced digital experiences at Enterprise scale. Our team’s mission is to enable digital teams across the world to quickly build the best digital experiences imaginable. We're only scratching the surface of our full potential and you have an opportunity to join us on the incredible journey ahead.
+            - paragraph [ref=e26]:
+              - text: We are looking for a mid-level
+              - strong [ref=e27]: Backend Software Engineer
+              - text: to join the Entity Architecture team, who are building the systems enabling structured content to be connected, transformed and shaped for different digital experiences and platforms. This team is at the heart of our most important initiative, and are responsible for building the next-generation services that will power customer experiences for years to come - serving millions (if not billions) of customer requests a day.
+            - paragraph [ref=e28]: You will join a high-performing, remote-first development team based in Europe. This role is ideal for engineers who enjoy deep technical work and want to see their ideas come to life in real-world product experiences. This is an incredible opportunity to join us at this exciting time and do meaningful, challenging work whilst growing your career.
+            - heading "What to expect?" [level=2] [ref=e29]
+            - list [ref=e30]:
+              - listitem [ref=e31]: Design and build core backend systems for dynamic content resolution and delivery
+              - listitem [ref=e32]: Define and evolve APIs, schemas, and versioning strategies with long-term stability in mind, which can consistently cater to billions of requests every month.
+              - listitem [ref=e33]: Solve complex engineering and Content Modelling problems, working across multiple layers and systems.
+              - listitem [ref=e34]: Implement deterministic, cache-aware execution pipelines with strong performance guarantees
+              - listitem [ref=e35]: Develop on our Platform with services like AWS, CloudFlare, Docker, Kubernetes, and Terraform.
+              - listitem [ref=e36]: Own the system in production, including observability, debugging and operational reliability.
+              - listitem [ref=e37]: Collaborate closely with product managers and other engineers to integrate with a high-performance ecosystem.
+            - heading "What you need to be successful?" [level=2] [ref=e38]
+            - list [ref=e39]:
+              - listitem [ref=e40]: Strong backend skills and knowledge of system design, performance and maintainability.
+              - listitem [ref=e41]: Experience with owning/maintaining and improving complex, long-lived production systems.
+              - listitem [ref=e42]: Experience with evolving APIs and data models used by other teams or customers.
+              - listitem [ref=e43]: Product mindset with empathy for customers (content practitioners, marketers, and developers).
+              - listitem [ref=e44]: Ability to work effectively in ambiguity and make sound technical tradeoffs.
+              - listitem [ref=e45]: Strong teamwork skills, able to explain the reasoning behind your technical choices and be open to diverse opinions
+            - heading "Bonus" [level=2] [ref=e46]
+            - list [ref=e47]:
+              - listitem [ref=e48]: Familiarity with TypeScript, GraphQL and serverless applications.
+              - listitem [ref=e49]: Familiarity with declarative systems, data transformation pipelines and cache-heavy architecture.
+              - listitem [ref=e50]: Experience with content platforms, personalization, or similar systems.
+              - listitem [ref=e51]: Familiarity with AI tooling and leveraging it in your daily work.
+            - heading "What’s in it for you?" [level=2] [ref=e52]
+            - list [ref=e53]:
+              - listitem [ref=e54]: Join an ambitious tech company reshaping the way people build digital experiences
+              - listitem [ref=e55]: Full-time employees receive Stock Options for the opportunity to share in the success of our company
+              - listitem [ref=e56]: Comprehensive healthcare package covering 100% of monthly health premiums for employees and 85% of costs for your dependents.
+              - listitem [ref=e57]: Fertility and family building benefits, including a lifetime reimbursable wallet to support your growing family.
+              - listitem [ref=e58]:
+                - text: We value
+                - strong [ref=e59]: Work-Life balance
+                - text: and
+                - strong [ref=e60]: You Time
+                - text: "!"
+                - strong [ref=e61]
+                - text: A generous amount of paid time off, including vacation days, sick days, compassion days for loss, education days, and volunteer days
+              - listitem [ref=e62]:
+                - strong [ref=e63]: Company paid parental leave
+                - text: to care for and focus on your growing family
+              - listitem [ref=e64]: Use your personal annual education budget to improve your skills and grow in your career
+              - listitem [ref=e65]: Enjoy a full range of virtual and in-person events, including workshops, guest speakers, and fun team activities, supporting learning and networking exchange beyond the usual work duties
+              - listitem [ref=e66]: An annual wellbeing stipend to care for your physical, financial, or emotional health
+              - listitem [ref=e67]: A monthly communication stipend and phone hardware upgrade reimbursement.
+              - listitem [ref=e68]: New hire office equipment stipend for hybrid or distributed employees. Get the gear you need to work at your best.
+          - generic [ref=e69]:
+            - heading "Who are we?" [level=2] [ref=e70]:
+              - strong [ref=e71]: Who are we?
+            - paragraph [ref=e72]:
+              - text: Contentful is a leading
+              - strong [ref=e73]: digital experience platform
+              - text: that helps modern businesses meet the growing demand for engaging, personalized content at scale. By blending composability with native
+              - strong [ref=e74]: AI
+              - text: capabilities, Contentful enables dynamic personalization, automated content delivery, and real-time experimentation, powering next-generation digital experiences across brands, regions, and channels for more than 4,200 organizations worldwide. More than
+              - strong [ref=e75]: 700 people
+              - text: from more than
+              - strong [ref=e76]: 70 nations
+              - text: contribute their energy and creativity to Contentful, working from hubs in Berlin, Denver, San Francisco, London, New York, and distributed worldwide.
+            - heading "Everyone is welcome here!" [level=2] [ref=e77]:
+              - strong [ref=e78]: Everyone is welcome here!
+            - paragraph [ref=e79]:
+              - generic [ref=e80]:
+                - strong [ref=e81]: “Everyone is welcome here”
+                - text: is a celebrated component of our culture. At Contentful, we strive to create an inclusive environment that empowers our employees. We believe that our products and services benefit from our diverse backgrounds and experiences, and we are proud to be an equal opportunity employer. All qualified applications will receive consideration for employment without regard to race, color, national origin, religion, sexual orientation, gender, gender identity, age, physical [dis]ability, or length of time spent unemployed. We invite you to apply and join us!
+            - paragraph [ref=e82]: If you need reasonable accommodations at any point during the application or interview process, please let your recruiting coordinator know.
+            - paragraph [ref=e83]:
+              - emphasis [ref=e85]:
+                - text: Please be aware of scammers who may fraudulently allege to be from Contentful. These types of fraud can be carried out through copycat websites, fake email addresses claiming to be from our company, or social media. We do not ask for your personal information, such as bank account numbers, identification numbers, etc, through social media or chat-based apps, nor do we request or send money for the purchase of business equipment. If you suspect fraud, please report it to your local authorities, as well as reach out to us at
+                - link "security-esk@contentful.com" [ref=e86] [cursor=pointer]:
+                  - /url: mailto:security-esk@contentful.com
+              - emphasis [ref=e88]: with any information you may have.
+            - paragraph [ref=e89]:
+              - text: By clicking “Apply for this job,” I acknowledge that I have read the “
+              - link "Contentful’s Candidate Privacy Notice" [ref=e90] [cursor=pointer]:
+                - /url: https://www.contentful.com/legal/us/privacy-notice-to-candidates/privacy/
+              - text: ” and hereby consent to the collection, processing, use, and storage of my personal information as described therein.
+      - separator [ref=e91]
+      - generic [ref=e92]:
+        - generic [ref=e94]:
+          - heading "Apply for this job" [level=2] [ref=e96]
+          - generic [ref=e97]:
+            - paragraph [ref=e99]: "*"
+            - paragraph [ref=e100]: indicates a required field
+        - generic [ref=e101]:
+          - generic [ref=e102]:
+            - generic [ref=e105]:
+              - generic [ref=e106]: First Name*
+              - textbox "First Name" [ref=e107]
+            - generic [ref=e110]:
+              - generic [ref=e111]: Last Name*
+              - textbox "Last Name" [ref=e112]
+            - generic [ref=e115]:
+              - generic [ref=e116]: Preferred First Name
+              - textbox "Preferred First Name" [ref=e117]
+            - generic [ref=e120]:
+              - generic [ref=e121]: Email*
+              - textbox "Email" [ref=e122]
+            - group "Phone" [ref=e124]:
+              - generic [ref=e125]: Phone
+              - generic [ref=e128]:
+                - generic [ref=e129]: Country*
+                - generic [ref=e130]:
+                  - log [ref=e132]
+                  - generic [ref=e134]:
+                    - combobox "Country" [ref=e137]
+                    - button "Toggle flyout" [ref=e139] [cursor=pointer]:
+                      - img [ref=e140]
+                  - textbox
+              - generic [ref=e144]:
+                - generic [ref=e145]: Phone*
+                - textbox "Phone" [ref=e146]
+            - generic [ref=e147]:
+              - generic [ref=e149]:
+                - generic [ref=e150]: Location (City)*
+                - generic [ref=e151]:
+                  - log [ref=e153]
+                  - combobox "Location (City)" [ref=e158]
+                  - textbox
+              - button "Locate me" [ref=e159] [cursor=pointer]
+            - group "Resume/CV*" [ref=e161]:
+              - generic [ref=e162]: Resume/CV*
+              - generic [ref=e164]:
+                - generic [ref=e166]:
+                  - button "Attach" [ref=e167] [cursor=pointer]
+                  - generic [ref=e168]: Attach
+                  - button "Attach" [ref=e169]
+                - button "Dropbox" [ref=e171] [cursor=pointer]
+                - button "Google Drive" [ref=e173] [cursor=pointer]
+                - generic [ref=e175]:
+                  - button "Enter manually" [ref=e176] [cursor=pointer]
+                  - generic [ref=e177]: Enter manually
+                - paragraph [ref=e178]: "Accepted file types: pdf, doc, docx, txt, rtf"
+            - group "Cover Letter" [ref=e180]:
+              - generic [ref=e181]: Cover Letter
+              - generic [ref=e183]:
+                - generic [ref=e185]:
+                  - button "Attach" [ref=e186] [cursor=pointer]
+                  - generic [ref=e187]: Attach
+                  - button "Attach" [ref=e188]
+                - button "Dropbox" [ref=e190] [cursor=pointer]
+                - button "Google Drive" [ref=e192] [cursor=pointer]
+                - generic [ref=e194]:
+                  - button "Enter manually" [ref=e195] [cursor=pointer]
+                  - generic [ref=e196]: Enter manually
+                - paragraph [ref=e197]: "Accepted file types: pdf, doc, docx, txt, rtf"
+          - generic [ref=e198]:
+            - separator [ref=e199]
+            - generic [ref=e202]:
+              - generic [ref=e203]: Are you eligible to work in the country you have applied to?*
+              - generic [ref=e204]:
+                - log [ref=e206]
+                - generic [ref=e208]:
+                  - generic [ref=e209]:
+                    - generic [ref=e210]: Select...
+                    - combobox "Are you eligible to work in the country you have applied to?" [ref=e212]
+                  - button "Toggle flyout" [ref=e214] [cursor=pointer]:
+                    - img [ref=e215]
+                - textbox
+            - generic [ref=e219]:
+              - generic [ref=e220]: LinkedIn Profile*
+              - textbox "LinkedIn Profile" [ref=e221]
+            - generic [ref=e224]:
+              - generic [ref=e225]: Website
+              - textbox "Website" [ref=e226]
+          - button "Submit application" [ref=e228] [cursor=pointer]
+  - contentinfo [ref=e229]:
+    - generic [ref=e230]:
+      - paragraph [ref=e231]: Powered by
+      - link "Greenhouse logo" [ref=e232] [cursor=pointer]:
+        - /url: https://www.greenhouse.com
+        - img "Greenhouse logo" [ref=e233]
+  - iframe [ref=e248]:
+    - generic [ref=f18e6]:
+      - text: protected by
+      - strong [ref=f18e7]: reCAPTCHA

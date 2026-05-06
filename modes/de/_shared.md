@@ -105,6 +105,39 @@ Wenn der Kandidat eine Live-Demo / ein Dashboard hat (`profile.yml` prüfen), in
 - Freelance-Sätze in DACH liegen in der Regel 30-60% über dem Brutto-Stundensatz einer Festanstellung (Sozialversicherung, Urlaub, Krankheit, Akquise, Steuerberater)
 - Geo-Arbitrage funktioniert in Remote-Rollen: niedrigere Lebenshaltungskosten = besseres Netto
 
+### Sprachanforderung — Scoring Gate (WICHTIG)
+
+Die meisten deutschen Stellenanzeigen enthalten eine explizite Sprachanforderung. Dieses Gate **begrenzt den Global-Score**, unabhängig davon, wie gut der technische Match ist.
+
+**So wird der Gate-Score berechnet:**
+
+Lies `language.proficiency.de` aus `config/profile.yml` (aktuell: B2). Dann:
+
+| JD-Anforderung | Profil = B2 | Profil = C1 | Profil = C2/Muttersprachler |
+|----------------|-------------|-------------|----------------------------|
+| C2 / Muttersprachler | **0** (Hard Block) | **2** (starke Lücke) | **5** |
+| C1 (fließend) | **4.5** (B2 heading to C1, apply) | **5** | **5** |
+| B2 (gute Kenntnisse) | **5** | **5** | **5** |
+| B1 oder niedriger | **5** | **5** | **5** |
+| Nicht erwähnt | **5** | **5** | **5** |
+| "English only" / "Deutsch nicht erforderlich" | **5** | **5** | **5** |
+
+**Anwendung:**
+```
+Global Score (final) = min(6-Block-Durchschnitt, Sprachanforderung-Gate)
+```
+
+**Beispiel:** Match 4.5/5, aber JD fordert C1 und Profil hat B2 → Gate = 3 → **Final Score: 3.0/5**
+
+**Wo die Sprachanforderung zu finden ist:**
+- Explizit: "Deutschkenntnisse: C1 erforderlich", "fließendes Deutsch", "Deutsch auf Muttersprachlerniveau"
+- Implizit: Wenn die gesamte Stellenanzeige auf Deutsch ist, mindestens B2 annehmen
+- Wenn nicht erwähnt UND JD auf Englisch: Gate = 5 (kein Deutsch erforderlich)
+
+**Im Report-Block B anzeigen:** Zeige die erkannte Sprachanforderung, den Gate-Score, und ob es ein limitierender Faktor für den Global-Score ist.
+
+---
+
 ### Deutscher Markt — Spezifika (WICHTIG)
 
 In deutschen Stellenanzeigen und Vertragsverhandlungen tauchen Begriffe auf, die in EN/ES-Märkten nicht existieren. Diese MÜSSEN korrekt eingeordnet werden:
@@ -195,7 +228,7 @@ In deutschen Stellenanzeigen und Vertragsverhandlungen tauchen Begriffe auf, die
 | WebSearch | Vergütungs-Recherche, Trends, Unternehmenskultur, LinkedIn-Kontakte, Fallback für Stellenanzeigen |
 | WebFetch | Fallback, um Stellenanzeigen aus statischen Seiten zu extrahieren |
 | Playwright | Prüfen, ob Stellenanzeigen noch aktiv sind (browser_navigate + browser_snapshot), Stellenanzeigen aus SPAs extrahieren. **KRITISCH: NIEMALS 2+ Agenten parallel mit Playwright starten — sie teilen sich eine Browser-Instanz** |
-| Read | cv.md, article-digest.md, cv-template.html |
-| Write | Temporäres HTML für PDF, applications.md, Reports .md |
-| Edit | Tracker aktualisieren |
-| Bash | `node generate-pdf.mjs` |
+| Read | cv.md, article-digest.md, DOCX-Master in `templates/cv/` |
+| Write | Angepasste `.docx`-Kopien in `output/`, applications.md, Reports .md |
+| Edit | Tracker aktualisieren; DOCX-Inhalt anpassen (Profil-Absatz + Synonym-Ersetzungen in bestehenden Bullets + Skills-Sektion hinzufügen/ersetzen passend zum JD, leichte Übertreibung OK wenn Erfahrung annähernd passt). Keine Änderungen an Formatierung, Foto, Signatur, Bullet-Reihenfolge oder Metriken. |
+| Bash | `soffice --headless --convert-to pdf` für DOCX → PDF (Lebenslauf + Anschreiben) |

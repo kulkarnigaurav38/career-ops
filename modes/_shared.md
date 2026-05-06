@@ -93,11 +93,10 @@ After detecting archetype, read `modes/_profile.md` for the user's specific fram
 | WebSearch | Comp research, trends, company culture, LinkedIn contacts, fallback for JDs |
 | WebFetch | Fallback for extracting JDs from static pages |
 | Playwright | Verify offers (browser_navigate + browser_snapshot). **NEVER 2+ agents with Playwright in parallel.** |
-| Read | cv.md, _profile.md, article-digest.md, cv-template.html |
-| Write | Temporary HTML for PDF, applications.md, reports .md |
-| Edit | Update tracker |
-| Canva MCP | Optional visual CV generation. Duplicate base design, edit text, export PDF. Requires `canva_resume_design_id` in profile.yml. |
-| Bash | `node generate-pdf.mjs` |
+| Read | cv.md, _profile.md, article-digest.md, DOCX masters in `templates/cv/` |
+| Write | Tailored `.docx` copies in `output/`, applications.md, reports .md |
+| Edit | Update tracker; tailor DOCX content (Profile/Summary rewrite + synonym swaps inside existing bullets + Skills section add/replace to match JD, light exaggeration OK when experience kind-of-matches). No formatting, photo, signature, bullet-order, or metrics changes. |
+| Bash | `soffice --headless --convert-to pdf` for DOCX → PDF (CV + cover letter) |
 
 ### Time-to-offer priority
 - Working demo + metrics > perfection

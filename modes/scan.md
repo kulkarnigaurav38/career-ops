@@ -19,7 +19,48 @@ Agent(
 Leer `portals.yml` que contiene:
 - `search_queries`: Lista de queries WebSearch con `site:` filters por portal (descubrimiento amplio)
 - `tracked_companies`: Empresas específicas con `careers_url` para navegación directa
-- `title_filter`: Keywords positive/negative/seniority_boost para filtrado de títulos
+- `role_terms`: Variantes de "Software Entwickler" (Gate 1 del shortlist)
+- `ai_signals`: Términos AI/KI que deben aparecer en título O descripción (Gate 2)
+- `title_filter.negative` + `seniority_boost`: filtros de ruido y señales de junior/entry
+
+## Shortlist logic (Phase 1 — DACH Software Entwickler + AI/KI)
+
+Una oferta entra al pipeline sólo si pasa AMBOS gates. **El nombre de la empresa se ignora** — pequeñas startups, Mittelstand, y empresas con careers page propia están todas en scope.
+
+**Gate 1 — Role match (título):**
+- El título contiene alguno de los términos de `role_terms` (case-insensitive, whole-word para acrónimos).
+- Ej: "Software Entwickler", "Softwareentwickler", "Software Engineer", "Fullstack Developer", "Python Entwickler", "Backend Engineer", "KI-Entwickler", "AI Engineer", etc.
+
+**Gate 2 — AI signal (título O descripción):**
+- El título O la descripción del puesto contiene algún término de `ai_signals`.
+- Acrónimos cortos ("AI", "KI", "ML", "LLM", "GPT") deben matchear como palabra completa — nunca como substring de "HTML", "KIA", "AirBnB", etc.
+- Si el título ya contiene un signal (p.ej. "AI Engineer", "KI-Entwickler") → Gate 2 pasa sin necesidad de leer la descripción.
+
+**Filtro negativo adicional:** 0 términos de `title_filter.negative` en el título (Intern, Praktikant, Werkstudent, Ausbildung, iOS, Android, COBOL, etc.).
+
+### Implementación en dos pasadas
+
+**Pasada 1 (rápida, sólo títulos)** — aplicar en todos los niveles:
+- `role_terms` matchea en título → candidato a Gate 1 ✓
+- `ai_signals` matchea en título → Gate 2 ✓ → **Shortlist inmediato**
+- `role_terms` matchea pero `ai_signals` no → candidato parcial → Pasada 2
+- No matchea `role_terms` → `skipped_title`
+
+**Pasada 2 (description drill-down)** — sólo para los candidatos parciales de Pasada 1:
+- **Nivel 1 (Playwright tracked_companies):** hacer click o `browser_navigate` a la URL del listing, `browser_snapshot`, buscar `ai_signals` en el texto completo. Secuencial, nunca paralelo.
+- **Nivel 2 (Greenhouse API):** la API ya devuelve `content` con el JD completo — buscar `ai_signals` allí (sin fetch extra).
+- **Nivel 3 (WebSearch):** la verificación de liveness (paso 7.5) ya hace `browser_navigate` + `browser_snapshot` a cada URL nueva. **Extender esa verificación** para también escanear el body por `ai_signals` ANTES de añadir a pipeline. Sin doble fetch.
+- Si `ai_signals` aparece en la descripción → **Shortlist**. Si no → `skipped_no_ai_signal` (nuevo status).
+
+### DACH broad scan — queries de Phase 1
+
+Las nuevas queries en `portals.yml` (sección "Phase 1 — DACH broad scans") cubren el gap de empresas pequeñas alemanas:
+- **ATSes DACH:** Personio, Recruitee, Softgarden, JOIN.com, Teamtailor, Workwise. Cada query `site:jobs.personio.de ...` hace match contra cientos de empresas hospedadas en ese ATS de una sola vez.
+- **Boards DACH:** arbeitnow, Gründerszene, Berlin Startup Jobs, Munich Startup, Kununu, Jobware, Stellenanzeigen.de, Die Zeit Jobs, XING.
+- **Self-hosted careers:** queries con `inurl:karriere OR inurl:stellen OR inurl:jobs site:.de` para empresas con su propia página de carrera sin ATS.
+- **Cluster regional Leonberg/Stuttgart:** CyberValley, UnternehmerTUM, BW (Stuttgart/Karlsruhe/Tübingen/Heilbronn/Böblingen).
+
+Todas estas queries tiran resultados de muchas empresas desconocidas. El filtro role_terms + ai_signals se encarga de reducir el ruido.
 
 ## Estrategia de descubrimiento (3 niveles)
 
@@ -48,6 +89,18 @@ Los `search_queries` con `site:` filters cubren portales de forma transversal (t
 
 Los niveles son aditivos — se ejecutan todos, los resultados se mezclan y deduplicar.
 
+### Consultas alemanas (DACH-Markt)
+
+Cuando el candidato tiene `language.modes_dir: modes/de` en `config/profile.yml`, incluir queries con keywords alemanas:
+- "KI Ingenieur Berlin"
+- "Machine Learning Engineer Deutschland"
+- "LLM Engineer München"
+- "AI Engineer Stuttgart"
+- "Softwareentwickler KI"
+- "Künstliche Intelligenz" + ciudad
+
+Los portales alemanes (StepStone, ArbeitNow, Honeypot, Indeed DE) ya están configurados en `portals.yml` bajo `search_queries`. Los portales alemanes suelen requerir Playwright por cookie-banners y session-based rendering.
+
 ## Workflow
 
 1. **Leer configuración**: `portals.yml`
@@ -64,6 +117,18 @@ Los niveles son aditivos — se ejecutan todos, los resultados se mezclan y dedu
    f. Acumular en lista de candidatos
    g. Si `careers_url` falla (404, redirect), intentar `scan_query` como fallback y anotar para actualizar la URL
 
+4b. **Nivel 1b — LinkedIn search (last 24h)**:
+   Para cada entry en `linkedin_searches` con `enabled: true`:
+   a. `browser_navigate` a la URL (LinkedIn job search con filtro `f_TPR=r86400`)
+   b. `browser_snapshot` para leer los job cards
+   c. Para cada job card extraer: `{title, url, company}`
+   d. Scroll down para cargar más resultados si los hay (máx 50 resultados por query)
+   e. Acumular en lista de candidatos (dedup con Nivel 1)
+   
+   **IMPORTANTE:** LinkedIn puede requerir login. Si la página muestra login wall, saltar este nivel y notificar al usuario. Si el usuario está loggeado en Chrome, usar `claude --chrome` para este nivel.
+   
+   **IMPORTANTE:** LinkedIn URLs de cada listing deben normalizarse a formato canónico: `https://www.linkedin.com/jobs/view/{job_id}` (sin parámetros de tracking).
+
 5. **Nivel 2 — Greenhouse APIs** (paralelo):
    Para cada empresa en `tracked_companies` con `api:` definida y `enabled: true`:
    a. WebFetch de la URL de API → JSON con lista de jobs
@@ -79,10 +144,12 @@ Los niveles son aditivos — se ejecutan todos, los resultados se mezclan y dedu
       - **company**: después del " @ " en el título, o extraer del dominio/path
    c. Acumular en lista de candidatos (dedup con Nivel 1+2)
 
-6. **Filtrar por título** usando `title_filter` de `portals.yml`:
-   - Al menos 1 keyword de `positive` debe aparecer en el título (case-insensitive)
-   - 0 keywords de `negative` deben aparecer
-   - `seniority_boost` keywords dan prioridad pero no son obligatorios
+6. **Filtrar aplicando el shortlist rule de dos gates** (ver sección "Shortlist logic (Phase 1)" arriba):
+   - **Gate 1:** título contiene un término de `role_terms` (case-insensitive)
+   - **Gate 2:** título O descripción contiene un término de `ai_signals` (acrónimos con whole-word)
+   - 0 términos de `title_filter.negative` en el título
+   - `seniority_boost` (Junior, Entry) da prioridad pero no es obligatorio
+   - Dos pasadas: títulos primero (rápido); description drill-down sólo para los casos title-role-only
 
 7. **Deduplicar** contra 3 fuentes:
    - `scan-history.tsv` → URL exacta ya vista
@@ -103,7 +170,10 @@ Los niveles son aditivos — se ejecutan todos, los resultados se mezclan y dedu
         - Página contiene: "job no longer available" / "no longer open" / "position has been filled" / "this job has expired" / "page not found"
         - Solo navbar y footer visibles, sin contenido JD (contenido < ~300 chars)
    d. Si expirada: registrar en `scan-history.tsv` con status `skipped_expired` y descartar
-   e. Si activa: continuar al paso 8
+   e. Si activa: **escanear el body por `ai_signals`** (Gate 2 drill-down).
+      - Si el título ya matcheó un `ai_signal` en Pasada 1 → continuar al paso 8
+      - Si sólo matcheó `role_terms` en título Y el body contiene algún `ai_signal` → continuar al paso 8
+      - Si sólo matcheó `role_terms` y el body NO contiene `ai_signals` → registrar como `skipped_no_ai_signal` y descartar
 
    **No interrumpir el scan entero si una URL falla.** Si `browser_navigate` da error (timeout, 403, etc.), marcar como `skipped_expired` y continuar con la siguiente.
 
@@ -111,9 +181,10 @@ Los niveles son aditivos — se ejecutan todos, los resultados se mezclan y dedu
    a. Añadir a `pipeline.md` sección "Pendientes": `- [ ] {url} | {company} | {title}`
    b. Registrar en `scan-history.tsv`: `{url}\t{date}\t{query_name}\t{title}\t{company}\tadded`
 
-9. **Ofertas filtradas por título**: registrar en `scan-history.tsv` con status `skipped_title`
-10. **Ofertas duplicadas**: registrar con status `skipped_dup`
-11. **Ofertas expiradas (Nivel 3)**: registrar con status `skipped_expired`
+9. **Ofertas filtradas por título (Gate 1 falla)**: registrar en `scan-history.tsv` con status `skipped_title`
+10. **Ofertas que pasan Gate 1 pero fallan Gate 2 tras drill-down** (Software Entwickler sin señal AI/KI en título ni descripción): status `skipped_no_ai_signal`
+11. **Ofertas duplicadas**: registrar con status `skipped_dup`
+12. **Ofertas expiradas (Nivel 3)**: registrar con status `skipped_expired`
 
 ## Extracción de título y empresa de WebSearch results
 

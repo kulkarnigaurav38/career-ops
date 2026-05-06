@@ -3,9 +3,13 @@
  * merge-tracker.mjs — Merge batch tracker additions into applications.md
  *
  * Handles multiple TSV formats:
- * - 9-col: num\tdate\tcompany\trole\tstatus\tscore\tpdf\treport\tnotes
+ * - 10-col: num\tdate\tcompany\trole\tstatus\tscore\tpdf\treport\tnotes\turl
+ * - 9-col: num\tdate\tcompany\trole\tstatus\tscore\tpdf\treport\tnotes (no URL)
  * - 8-col: num\tdate\tcompany\trole\tstatus\tscore\tpdf\treport (no notes)
  * - Pipe-delimited (markdown table row): | col | col | ... |
+ *
+ * applications.md column order:
+ *   # | Date | Company | Role | URL | Score | Status | PDF | Report | Notes
  *
  * Dedup: company normalized + role fuzzy match + report number match
  * If duplicate with higher score → update in-place, update report link
@@ -83,15 +87,34 @@ function parseScore(s) {
   return m ? parseFloat(m[1]) : 0;
 }
 
+function renderUrlCell(url) {
+  if (!url) return '';
+  // If already formatted as markdown link, pass through
+  if (/^\[[^\]]+\]\(/.test(url)) return url;
+  return `[link](${url})`;
+}
+
 function parseAppLine(line) {
   const parts = line.split('|').map(s => s.trim());
-  if (parts.length < 9) return null;
   const num = parseInt(parts[1]);
   if (isNaN(num) || num === 0) return null;
+  // Detect layout: 10-column (with URL between role and score) vs 9-column (legacy, no URL)
+  // parts length includes empty leading/trailing from split; 10-col layout yields 12 parts, 9-col yields 11.
+  const hasUrl = parts.length >= 12;
+  if (hasUrl) {
+    return {
+      num, date: parts[2], company: parts[3], role: parts[4],
+      url: parts[5], score: parts[6], status: parts[7],
+      pdf: parts[8], report: parts[9], notes: parts[10] || '',
+      raw: line,
+    };
+  }
+  if (parts.length < 11) return null;
   return {
     num, date: parts[2], company: parts[3], role: parts[4],
-    score: parts[5], status: parts[6], pdf: parts[7], report: parts[8],
-    notes: parts[9] || '', raw: line,
+    url: '', score: parts[5], status: parts[6],
+    pdf: parts[7], report: parts[8], notes: parts[9] || '',
+    raw: line,
   };
 }
 
@@ -113,12 +136,26 @@ function parseTsvContent(content, filename) {
       console.warn(`⚠️  Skipping malformed pipe-delimited ${filename}: ${parts.length} fields`);
       return null;
     }
-    // Format: num | date | company | role | score | status | pdf | report | notes
-    addition = {
+    // Format (new): num | date | company | role | url | score | status | pdf | report | notes
+    // Format (legacy): num | date | company | role | score | status | pdf | report | notes
+    const hasUrlCol = parts.length >= 10;
+    addition = hasUrlCol ? {
       num: parseInt(parts[0]),
       date: parts[1],
       company: parts[2],
       role: parts[3],
+      url: parts[4],
+      score: parts[5],
+      status: validateStatus(parts[6]),
+      pdf: parts[7],
+      report: parts[8],
+      notes: parts[9] || '',
+    } : {
+      num: parseInt(parts[0]),
+      date: parts[1],
+      company: parts[2],
+      role: parts[3],
+      url: '',
       score: parts[4],
       status: validateStatus(parts[5]),
       pdf: parts[6],
@@ -167,6 +204,7 @@ function parseTsvContent(content, filename) {
       pdf: parts[6],
       report: parts[7],
       notes: parts[8] || '',
+      url: parts[9] || '',
     };
   }
 
@@ -269,7 +307,8 @@ for (const file of tsvFiles) {
       console.log(`🔄 Update: #${duplicate.num} ${addition.company} — ${addition.role} (${oldScore}→${newScore})`);
       const lineIdx = appLines.indexOf(duplicate.raw);
       if (lineIdx >= 0) {
-        const updatedLine = `| ${duplicate.num} | ${addition.date} | ${addition.company} | ${addition.role} | ${addition.score} | ${duplicate.status} | ${duplicate.pdf} | ${addition.report} | Re-eval ${addition.date} (${oldScore}→${newScore}). ${addition.notes} |`;
+        const urlCell = renderUrlCell(addition.url || duplicate.url);
+        const updatedLine = `| ${duplicate.num} | ${addition.date} | ${addition.company} | ${addition.role} | ${urlCell} | ${addition.score} | ${duplicate.status} | ${duplicate.pdf} | ${addition.report} | Re-eval ${addition.date} (${oldScore}→${newScore}). ${addition.notes} |`;
         appLines[lineIdx] = updatedLine;
         updated++;
       }
@@ -282,7 +321,8 @@ for (const file of tsvFiles) {
     const entryNum = addition.num > maxNum ? addition.num : ++maxNum;
     if (addition.num > maxNum) maxNum = addition.num;
 
-    const newLine = `| ${entryNum} | ${addition.date} | ${addition.company} | ${addition.role} | ${addition.score} | ${addition.status} | ${addition.pdf} | ${addition.report} | ${addition.notes} |`;
+    const urlCell = renderUrlCell(addition.url);
+    const newLine = `| ${entryNum} | ${addition.date} | ${addition.company} | ${addition.role} | ${urlCell} | ${addition.score} | ${addition.status} | ${addition.pdf} | ${addition.report} | ${addition.notes} |`;
     newLines.push(newLine);
     added++;
     console.log(`➕ Add #${entryNum}: ${addition.company} — ${addition.role} (${addition.score})`);

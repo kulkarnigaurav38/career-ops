@@ -11,6 +11,9 @@ batch/logs/*
 batch/batch-state.tsv
 batch/batch-input.tsv
 batch/tracker-additions/*.tsv
+batch/tracker-additions/merged/
+batch/tmp/
+batch/skipped-*.tsv
 !batch/tracker-additions/.gitkeep
 jds/*
 !jds/.gitkeep
@@ -22,9 +25,16 @@ modes/_profile.md
 .update-dismissed
 .update-lock
 
+# Browser sessions and apply logs
+data/browser-state/
+data/apply-log/
+
 # Generated
 .resolved-prompt-*
 node_modules/
+.venv/
+.playwright-mcp/
+data/ref-map.tsv
 
 # OS
 .DS_Store

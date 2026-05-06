@@ -32,7 +32,7 @@ const SYSTEM_PATHS = [
   'modes/_shared.md',
   'modes/_profile.template.md',
   'modes/oferta.md',
-  'modes/pdf.md',
+  // modes/pdf.md removed — replaced by DOCX CV pipeline
   'modes/scan.md',
   'modes/batch.md',
   'modes/apply.md',
