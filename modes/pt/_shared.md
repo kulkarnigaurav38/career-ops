@@ -212,7 +212,7 @@ Em vagas e negociacoes brasileiras, existem termos e praticas que nao aparecem n
 | WebSearch | Pesquisa de remuneracao, tendencias, cultura da empresa, contatos LinkedIn, fallback para descricoes de vagas |
 | WebFetch | Fallback para extrair descricoes de vagas de paginas estaticas |
 | Playwright | Verificar se vagas ainda estao ativas (browser_navigate + browser_snapshot), extrair descricoes de SPAs. **CRITICO: NUNCA iniciar 2+ agentes com Playwright em paralelo — eles compartilham a mesma instancia do navegador** |
-| Read | cv.md, _profile.md, article-digest.md, cv-template.html |
-| Write | HTML temporario para PDF, applications.md, reports .md |
-| Edit | Atualizar tracker |
-| Bash | `node generate-pdf.mjs` |
+| Read | cv.md, _profile.md, article-digest.md, masters DOCX em `templates/cv/` |
+| Write | Copias `.docx` adaptadas em `output/`, applications.md, reports .md |
+| Edit | Atualizar tracker; adaptar conteudo DOCX (reescrever Perfil + sinonimos em bullets existentes + secao Skills adicionar/substituir conforme o JD, leve exagero OK quando a experiencia aproxima). Sem alteracao de formato, foto, assinatura, ordem de bullets ou metricas. |
+| Bash | `soffice --headless --convert-to pdf` para DOCX → PDF (CV + carta de apresentacao) |

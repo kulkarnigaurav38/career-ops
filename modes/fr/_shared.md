@@ -199,7 +199,7 @@ Dans les offres et negociations francophones, certains termes n'existent pas sur
 | WebSearch | Recherche remuneration, tendances, culture d'entreprise, contacts LinkedIn, fallback offres |
 | WebFetch | Fallback pour extraire les offres depuis des pages statiques |
 | Playwright | Verifier si les offres sont actives (browser_navigate + browser_snapshot), extraire les offres depuis des SPAs. **CRITIQUE : JAMAIS 2+ agents en parallele avec Playwright -- ils partagent la meme instance navigateur** |
-| Read | cv.md, article-digest.md, cv-template.html |
-| Write | HTML temporaire pour PDF, applications.md, reports .md |
-| Edit | Mettre a jour le tracker |
-| Bash | `node generate-pdf.mjs` |
+| Read | cv.md, article-digest.md, masters DOCX dans `templates/cv/` |
+| Write | Copies `.docx` adaptees dans `output/`, applications.md, reports .md |
+| Edit | Mettre a jour le tracker ; adapter le contenu DOCX (reecrire Profil + synonymes dans bullets existants + section Skills ajout/remplacement pour coller au JD, legere exageration OK si l'experience correspond approximativement). Aucun changement de format, photo, signature, ordre des bullets ou metriques. |
+| Bash | `soffice --headless --convert-to pdf` pour DOCX → PDF (CV + lettre de motivation) |

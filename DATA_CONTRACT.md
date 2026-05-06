@@ -8,7 +8,11 @@ These files contain your personal data, customizations, and work product. Update
 
 | File | Purpose |
 |------|---------|
-| `cv.md` | Your CV in markdown |
+| `cv.md` | Your CV in markdown (English master, reference content) |
+| `cv.de.md` | Your CV in markdown (German master, reference content) |
+| `cover-letter.md` | Your master cover letter in markdown (English, reference content) |
+| `cover-letter.de.md` | Your master Anschreiben in markdown (German, reference content) |
+| `templates/cv/*.docx` | Your DOCX masters (CV + cover letter, DE + EN) with photo and signature — canonical source for generated PDFs |
 | `config/profile.yml` | Your identity, targets, comp range |
 | `modes/_profile.md` | Your archetypes, narrative, negotiation scripts |
 | `article-digest.md` | Your proof points from portfolio |
@@ -17,6 +21,7 @@ These files contain your personal data, customizations, and work product. Update
 | `data/applications.md` | Your application tracker |
 | `data/pipeline.md` | Your URL inbox |
 | `data/scan-history.tsv` | Your scan history |
+| `data/ref-map.tsv` | Your application reference code mappings |
 | `reports/*` | Your evaluation reports |
 | `output/*` | Your generated PDFs |
 | `jds/*` | Your saved job descriptions |
@@ -29,7 +34,6 @@ These files contain system logic, scripts, templates, and instructions that impr
 |------|---------|
 | `modes/_shared.md` | Scoring system, global rules, tools |
 | `modes/oferta.md` | Evaluation mode instructions |
-| `modes/pdf.md` | PDF generation instructions |
 | `modes/scan.md` | Portal scanner instructions |
 | `modes/batch.md` | Batch processing instructions |
 | `modes/apply.md` | Application assistant instructions |

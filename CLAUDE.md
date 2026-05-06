@@ -13,12 +13,14 @@ The portfolio that goes with this system is also open source: [cv-santiago](http
 There are two layers. Read `DATA_CONTRACT.md` for the full list.
 
 **User Layer (NEVER auto-updated, personalization goes HERE):**
-- `cv.md`, `config/profile.yml`, `modes/_profile.md`, `article-digest.md`, `portals.yml`
+- `cv.md`, `cv.de.md`, `cover-letter.md`, `cover-letter.de.md`
+- `templates/cv/*.docx` (DOCX masters for CV + cover letter, DE + EN — canonical source with photo + signature)
+- `config/profile.yml`, `modes/_profile.md`, `article-digest.md`, `portals.yml`
 - `data/*`, `reports/*`, `output/*`, `interview-prep/*`
 
 **System Layer (auto-updatable, DON'T put user data here):**
 - `modes/_shared.md`, `modes/oferta.md`, all other modes
-- `CLAUDE.md`, `*.mjs` scripts, `dashboard/*`, `templates/*`, `batch/*`
+- `CLAUDE.md`, `*.mjs` scripts, `dashboard/*`, `templates/*` (except `templates/cv/` — that's user data), `batch/*`
 
 **THE RULE: When the user asks to customize anything (archetypes, narrative, negotiation scripts, proof points, location policy, comp targets), ALWAYS write to `modes/_profile.md` or `config/profile.yml`. NEVER edit `modes/_shared.md` for user-specific content.** This ensures system updates don't overwrite their customizations.
 
@@ -45,6 +47,16 @@ To rollback: `node update-system.mjs rollback`
 
 AI-powered job search automation built on Claude Code: pipeline tracking, offer evaluation, CV generation, portal scanning, batch processing.
 
+### Architecture at a glance
+
+Career-ops is a set of Node scripts + markdown modes that Claude reads as instructions. Two main data flows:
+
+- **Offers:** `portals.yml` → scan → `data/pipeline.md` (URLs) → `oferta` mode → `reports/{NNN}-slug-date.md` + `batch/tracker-additions/*.tsv` → `merge-tracker.mjs` → `data/applications.md`.
+- **CVs:** `templates/cv/{Lebenslauf_Gaurav_Kulkarni_DE,CV_Gaurav_Kulkarni_EN}.docx` → copy → tailor Profile/Summary (+ truthful keyword synonyms in existing bullets) → `soffice --headless --convert-to pdf` → `output/*.pdf`.
+- **Cover Letters:** `cover-letter.md` / `cover-letter.de.md` → `templates/cover-letter-template.html` → `generate-pdf.mjs` (Playwright) → `output/*.pdf`.
+
+The `dashboard/` is a Go TUI (`main.go`) that reads `applications.md` for a live overview. Integrity scripts (`verify`, `normalize`, `dedup`) enforce invariants between reports and the tracker.
+
 ### Main Files
 
 | File | Function |
@@ -53,8 +65,10 @@ AI-powered job search automation built on Claude Code: pipeline tracking, offer 
 | `data/pipeline.md` | Inbox of pending URLs |
 | `data/scan-history.tsv` | Scanner dedup history |
 | `portals.yml` | Query and company config |
-| `templates/cv-template.html` | HTML template for CVs |
-| `generate-pdf.mjs` | Playwright: HTML to PDF |
+| `templates/cv/Lebenslauf_Gaurav_Kulkarni_DE.docx` | German master CV (Word) |
+| `templates/cv/CV_Gaurav_Kulkarni_EN.docx` | English master CV (Word) |
+| `templates/cv/Anschreiben_Gaurav_Kulkarni_DeutscheBoerse_DE.docx` | German master cover letter (Word) |
+| `templates/cv/CoverLetter_Gaurav_Kulkarni_DeutscheBoerse_EN.docx` | English master cover letter (Word) |
 | `article-digest.md` | Compact proof points from portfolio (optional) |
 | `interview-prep/story-bank.md` | Accumulated STAR+R stories across evaluations |
 | `interview-prep/{company}-{role}.md` | Company-specific interview intel reports |
@@ -73,7 +87,7 @@ When using [OpenCode](https://opencode.ai), the following slash commands are ava
 | `/career-ops-compare` | `/career-ops ofertas` | Compare and rank multiple offers |
 | `/career-ops-contact` | `/career-ops contacto` | LinkedIn outreach (find contacts + draft) |
 | `/career-ops-deep` | `/career-ops deep` | Deep company research |
-| `/career-ops-pdf` | `/career-ops pdf` | Generate ATS-optimized CV |
+| `/career-ops-pdf` | `/career-ops pdf` | Generate CV or cover letter PDF from DOCX masters |
 | `/career-ops-training` | `/career-ops training` | Evaluate course/cert against goals |
 | `/career-ops-project` | `/career-ops project` | Evaluate portfolio project idea |
 | `/career-ops-tracker` | `/career-ops tracker` | Application status overview |
@@ -177,7 +191,7 @@ This system is designed to be customized by YOU (AI Agent). When the user asks y
 - "Translate the modes to English" → edit all files in `modes/`
 - "Add these companies to my portals" → edit `portals.yml`
 - "Update my profile" → edit `config/profile.yml`
-- "Change the CV template design" → edit `templates/cv-template.html`
+- "Change the CV template design" → edit the DOCX masters directly in Word: `templates/cv/Lebenslauf_Gaurav_Kulkarni_DE.docx` (DE) or `templates/cv/CV_Gaurav_Kulkarni_EN.docx` (EN)
 - "Adjust the scoring weights" → edit `modes/_profile.md` for user-specific weighting, or edit `modes/_shared.md` and `batch/batch-prompt.md` only when changing the shared system defaults for everyone
 
 ### Language Modes
@@ -186,6 +200,7 @@ Default modes are in `modes/` (English). Additional language-specific modes are 
 
 - **German (DACH market):** `modes/de/` — native German translations with DACH-specific vocabulary (13. Monatsgehalt, Probezeit, Kündigungsfrist, AGG, Tarifvertrag, etc.). Includes `_shared.md`, `angebot.md` (evaluation), `bewerben.md` (apply), `pipeline.md`.
 - **French (Francophone market):** `modes/fr/` — native French translations with France/Belgium/Switzerland/Luxembourg-specific vocabulary (CDI/CDD, convention collective SYNTEC, RTT, mutuelle, prévoyance, 13e mois, intéressement/participation, titres-restaurant, CSE, portage salarial, etc.). Includes `_shared.md`, `offre.md` (evaluation), `postuler.md` (apply), `pipeline.md`.
+- **Portuguese (Lusophone market):** `modes/pt/` — native Portuguese translations for Portugal/Brazil job markets. Use when targeting Portuguese-language postings or when the user sets `language.modes_dir: modes/pt` in `config/profile.yml`.
 
 **When to use German modes:** If the user is targeting German-language job postings, lives in DACH, or asks for German output. Either:
 1. User says "use German modes" → read from `modes/de/` instead of `modes/`
@@ -209,7 +224,8 @@ Default modes are in `modes/` (English). Additional language-specific modes are 
 | Wants LinkedIn outreach | `contacto` |
 | Asks for company research | `deep` |
 | Preps for interview at specific company | `interview-prep` |
-| Wants to generate CV/PDF | `pdf` |
+| Wants to generate CV/PDF | DOCX pipeline (see CV Generation section) |
+| Wants to generate cover letter / Anschreiben | `anschreiben` |
 | Evaluates a course/cert | `training` |
 | Evaluates portfolio project | `project` |
 | Asks about application status | `tracker` |
@@ -221,20 +237,58 @@ Default modes are in `modes/` (English). Additional language-specific modes are 
 
 ### CV Source of Truth
 
-- `cv.md` in project root is the canonical CV
+- `cv.md` / `cv.de.md` in project root is the canonical CV content (markdown)
 - `article-digest.md` has detailed proof points (optional)
 - **NEVER hardcode metrics** -- read them from these files at evaluation time
 
+### CV + Cover Letter Generation -- DOCX Pipeline
+
+CV and cover letter masters are Word documents in `templates/cv/`. Per job: copy master → tailor content only (no formatting changes) → convert to PDF via LibreOffice headless. The user's headshot and signature are embedded in the DOCX masters — do NOT touch image placement, sizing, or anchors.
+
+**Master files:**
+- `templates/cv/Lebenslauf_Gaurav_Kulkarni_DE.docx` -- German master CV
+- `templates/cv/CV_Gaurav_Kulkarni_EN.docx` -- English master CV
+- `templates/cv/Anschreiben_Gaurav_Kulkarni_DeutscheBoerse_DE.docx` -- German master cover letter
+- `templates/cv/CoverLetter_Gaurav_Kulkarni_DeutscheBoerse_EN.docx` -- English master cover letter
+
+**Language rule (CRITICAL):**
+- German JD → use the DE master (CV + cover letter)
+- English JD → use the EN master (CV + cover letter)
+- NEVER mix languages. The CV and cover letter language MUST match the JD language.
+
+**Per-job workflow (CV):**
+1. Copy the appropriate DE or EN master to `output/{ref}-cv.docx`
+2. Tailor **only the content**, using `python-docx` or pandoc roundtrip. Formatting, photo, signature, bullet order, bolding, tables, and spacing stay frozen. Editable surfaces:
+   - **Profile/Summary** paragraph — rewrite fully to mirror JD language and inject exact JD keywords
+   - **Existing experience bullets** — synonym substitution inside the existing sentences only, to match JD vocabulary (e.g., "ML pipelines" → "MLOps pipelines"). Do NOT reorder, add, or remove bullets. Do NOT change dates, employers, or metrics.
+   - **Skills section** — add, remove, or replace skills / frameworks / programming languages / tools to match the JD. Light exaggeration is OK when the candidate's experience *kind of* matches (no need to be word-for-word). If the JD asks for something the candidate has never touched at all, skip it.
+3. Convert to PDF: `soffice --headless --convert-to pdf --outdir output output/{ref}-cv.docx`
+4. Output: `output/{ref}-cv.pdf`
+
+**Per-job workflow (cover letter):**
+1. Copy the appropriate DE or EN cover-letter master to `output/{ref}-coverletter.docx`
+2. Tailor the content per JD (more latitude than CV, but structure/format stays identical):
+   - Swap the recipient company + addressee
+   - Rewrite the body paragraphs to be specific to this JD — what about this role, what proof points map to their ask, why this company
+   - Keep the overall structure (greeting → hook paragraph → fit paragraph → close → sign-off), length, fonts, spacing, margins, and photo/signature placement unchanged
+3. Convert to PDF: `soffice --headless --convert-to pdf --outdir output output/{ref}-coverletter.docx`
+4. Output: `output/{ref}-coverletter.pdf`
+
+**Tooling:**
+- LibreOffice `soffice` on Windows: typically `C:/Program Files/LibreOffice/program/soffice.exe`. If not installed, prompt the user and fall back to delivering the `.docx`.
+- DOCX editing: `python-docx` preferred for targeted paragraph edits (keeps formatting intact). Pandoc `docx → md → docx` loses styling and is only a fallback.
+- `generate-pdf.mjs` (HTML → PDF) is legacy — not used for the CV or the new cover letter pipeline.
+
 ---
 
-## Ethical Use -- CRITICAL
+## Pipeline Behavior -- CRITICAL
 
-**This system is designed for quality, not quantity.** The goal is to help the user find and apply to roles where there is a genuine match -- not to spam companies with mass applications.
+**When the user provides a URL, always run the full pipeline including application.** The user has already decided to apply — the score is informational, never a gate.
 
 - **NEVER submit an application without the user reviewing it first.** Fill forms, draft answers, generate PDFs -- but always STOP before clicking Submit/Send/Apply. The user makes the final call.
-- **Strongly discourage low-fit applications.** If a score is below 4.0/5, explicitly recommend against applying. The user's time and the recruiter's time are both valuable. Only proceed if the user has a specific reason to override the score.
-- **Quality over speed.** A well-targeted application to 5 companies beats a generic blast to 50. Guide the user toward fewer, better applications.
-- **Respect recruiters' time.** Every application a human reads costs someone's attention. Only send what's worth reading.
+- **ALWAYS stop after generating CV + Cover Letter PDFs** for the user to review. Only proceed to form-filling after explicit approval.
+- **Score is data, not a decision.** Calculate and display it in reports/tracker for retrospective analysis, but never use it to recommend skipping an application.
+- **Every application gets full effort.** Personalize every CV, cover letter, and form answer as if it's the top pick — because to the user, it is.
 
 ---
 
@@ -248,6 +302,23 @@ Default modes are in `modes/` (English). Additional language-specific modes are 
 **Exception for batch workers (`claude -p`):** Playwright is not available in headless pipe mode. Use WebFetch as fallback and mark the report header with `**Verification:** unconfirmed (batch mode)`. The user can verify manually later.
 
 ---
+
+## Common Commands
+
+All defined in `package.json` — run with `npm run <name>` or `node <script>.mjs` directly.
+
+| Command | What it does |
+|---------|--------------|
+| `npm run doctor` | Environment sanity check (node, playwright, required files) |
+| `npm run verify` | Pipeline integrity check (reports ↔ tracker ↔ URLs) |
+| `npm run normalize` | Rewrite `applications.md` statuses to canonical values |
+| `npm run dedup` | Remove duplicate tracker entries |
+| `npm run merge` | Merge `batch/tracker-additions/*.tsv` into `applications.md` |
+| `npm run pdf` | Render `output/*.html` → PDF via Playwright (cover letters only) |
+| `npm run sync-check` | Warn if `cv.md` and reports drift |
+| `npm run liveness` | Check if saved JD URLs are still active |
+| `npm run update:check` / `npm run update` / `npm run rollback` | System updates |
+| `node test-all.mjs` | Run the full test script |
 
 ## Stack and Conventions
 

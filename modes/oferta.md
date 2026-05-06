@@ -105,6 +105,7 @@ Guardar evaluación completa en `reports/{###}-{company-slug}-{YYYY-MM-DD}.md`.
 # Evaluación: {Empresa} — {Rol}
 
 **Fecha:** {YYYY-MM-DD}
+**Ref:** {CODE} (generado con `node lib/ref-code.mjs generate "{company}" "{role}"`)
 **Arquetipo:** {detectado}
 **Score:** {X/5}
 **PDF:** {ruta o pendiente}
@@ -130,7 +131,7 @@ Guardar evaluación completa en `reports/{###}-{company-slug}-{YYYY-MM-DD}.md`.
 (contenido completo del bloque F)
 
 ## G) Draft Application Answers
-(solo si score >= 4.5 — borradores de respuestas para el formulario de aplicación)
+(borradores de respuestas para el formulario de aplicación)
 
 ---
 

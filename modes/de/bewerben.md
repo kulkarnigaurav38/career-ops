@@ -4,8 +4,25 @@ Interaktiver Modus für den Moment, in dem der Kandidat in Chrome ein Bewerbungs
 
 ## Voraussetzungen
 
-- **Empfohlen mit sichtbarem Playwright**: Im sichtbaren Modus sieht der Kandidat den Browser, und Claude kann mit der Seite interagieren.
+- **Empfohlen mit dem Skript-Assistenten**: `node apply-assistant.mjs` öffnet einen sichtbaren Browser, füllt Felder automatisch aus `config/profile.yml`, hängt PDFs per Referenzcode an und injiziert generierte Antworten. Für bekannte Portale (Greenhouse, Lever, Ashby, Workday, SmartRecruiters, BambooHR) verwenden.
+- **Playwright manuell**: Für Custom-Portale oder komplexe mehrstufige Formulare. Claude liest die Seite und generiert Antworten zum Kopieren.
 - **Ohne Playwright**: Der Kandidat teilt einen Screenshot oder fügt die Fragen manuell ein.
+
+## Skript-Assistent (bevorzugt)
+
+Wenn PDFs für einen Referenzcode existieren und das Portal ein bekanntes ATS ist:
+
+1. Antworten vorbereiten: Block G des Reports lesen (falls vorhanden), Antworten für offene Fragen generieren
+2. Antworten in `/tmp/answers-{REF}.json` als `{"label": "Antwort", ...}` speichern
+3. Ausführen:
+   ```bash
+   node apply-assistant.mjs "{bewerbungs_url}" --ref={REF} --answers=/tmp/answers-{REF}.json
+   ```
+4. Das Skript füllt automatisch: Name, E-Mail, Telefon, LinkedIn, Portfolio, Standort, Gehaltsvorstellung, Visa-Status
+5. Das Skript hängt an: Lebenslauf + Anschreiben PDFs aus dem `output/`-Verzeichnis
+6. Das Skript injiziert Textantworten aus der answers.json-Datei
+7. **Klickt NIEMALS auf Absenden/Submit** — der Kandidat prüft und sendet manuell
+8. Falls Felder unausgefüllt bleiben, meldet das Skript sie als JSON — dem Kandidaten beim Vervollständigen helfen
 
 ## Workflow
 

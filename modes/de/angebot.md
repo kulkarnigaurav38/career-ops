@@ -38,6 +38,26 @@ Abschnitt **Lücken (Gaps)** mit Mitigationsstrategie für jede einzelne. Pro Ga
 3. Gibt es ein Portfolio-Projekt, das diesen Gap abdeckt?
 4. Konkreter Mitigationsplan (Satz fürs Anschreiben, schnelles Mini-Projekt, etc.)
 
+## Sprachanforderung — Gate Score
+
+1. **Sprachanforderung erkennen:** Welches Deutschniveau fordert die Stellenanzeige? (C2/C1/B2/B1/nicht erwähnt)
+   - Explizit genannte Anforderung nutzen
+   - Wenn JD komplett auf Deutsch UND kein Niveau genannt → mindestens B2 annehmen
+   - Wenn JD auf Englisch UND kein Deutsch erwähnt → Gate = 5 (kein Deutsch erforderlich)
+2. **Gate berechnen:** Gemäß Tabelle in `modes/de/_shared.md` → "Sprachanforderung — Scoring Gate"
+3. **Anzeigen:**
+   - Erkannte Anforderung: z.B. "C1 (fließendes Deutsch)"
+   - Profil-Level: z.B. "B2"
+   - Gate-Score: z.B. **3/5**
+   - Impact: "⚠️ Gate begrenzt Global-Score auf maximal 3.0" (oder "✅ Kein limitierender Faktor")
+
+**WICHTIG:** Dieser Gate-Score begrenzt den finalen Global-Score:
+```
+Global Score (final) = min(6-Block-Durchschnitt, Sprachanforderung-Gate)
+```
+
+---
+
 ## Block C — Level und Strategie
 
 1. **Erkanntes Level** in der Stellenanzeige vs **natürliches Level des Kandidaten für diesen Archetyp**
@@ -112,6 +132,7 @@ Die vollständige Bewertung in `reports/{###}-{company-slug}-{YYYY-MM-DD}.md` ab
 # Bewertung: {Firma} — {Rolle}
 
 **Datum:** {YYYY-MM-DD}
+**Ref:** {CODE} (generiert mit `node lib/ref-code.mjs generate "{company}" "{role}"`)
 **Archetyp:** {erkannt}
 **Score:** {X/5}
 **URL:** {URL der Stellenanzeige}
@@ -138,7 +159,7 @@ Die vollständige Bewertung in `reports/{###}-{company-slug}-{YYYY-MM-DD}.md` ab
 (vollständiger Inhalt von Block F)
 
 ## G) Draft-Antworten für die Bewerbung
-(nur bei Score >= 4.5 — Entwürfe für die Antwortfelder im Bewerbungsformular)
+(Entwürfe für die Antwortfelder im Bewerbungsformular)
 
 ---
 

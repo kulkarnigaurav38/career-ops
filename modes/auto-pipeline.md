@@ -1,67 +1,87 @@
-# Modo: auto-pipeline — Pipeline Completo Automático
+# Mode: auto-pipeline — Minimal Pipeline (CV + Cover Letter + Tracker)
 
-Cuando el usuario pega un JD (texto o URL) sin sub-comando explícito, ejecutar TODO el pipeline en secuencia:
+When the user pastes a JD (text or URL), run these steps in order. No evaluation, no scoring, no form-filling — just produce tailored artifacts and log the application.
 
-## Paso 0 — Extraer JD
+## Step 1 — Extract the JD
 
-Si el input es una **URL** (no texto de JD pegado), seguir esta estrategia para extraer el contenido:
+If the input is a **URL** (not pasted JD text):
 
-**Orden de prioridad:**
+**Priority order:**
+1. **Playwright (preferred):** Most job portals (Lever, Ashby, Greenhouse, Workday) are SPAs. Use `browser_navigate` + `browser_snapshot` to render and read the JD.
+2. **WebFetch (fallback):** For static pages.
+3. **WebSearch (last resort):** Search role title + company.
 
-1. **Playwright (preferido):** La mayoría de portales de empleo (Lever, Ashby, Greenhouse, Workday) son SPAs. Usar `browser_navigate` + `browser_snapshot` para renderizar y leer el JD.
-2. **WebFetch (fallback):** Para páginas estáticas (ZipRecruiter, WeLoveProduct, company career pages).
-3. **WebSearch (último recurso):** Buscar título del rol + empresa en portales secundarios que indexan el JD en HTML estático.
+**If nothing works:** Ask the user to paste the JD manually or share a screenshot.
 
-**Si ningún método funciona:** Pedir al candidato que pegue el JD manualmente o comparta un screenshot.
+**If the input is JD text:** use it directly.
 
-**Si el input es texto de JD** (no URL): usar directamente, sin necesidad de fetch.
+Save the JD text internally (it's needed in Step 4 for the archive report).
 
-## Paso 1 — Evaluación A-F
-Ejecutar exactamente igual que el modo `oferta` (leer `modes/oferta.md` para todos los bloques A-F).
+## Step 2 — Generate Reference Code
 
-## Paso 2 — Guardar Report .md
-Guardar la evaluación completa en `reports/{###}-{company-slug}-{YYYY-MM-DD}.md` (ver formato en `modes/oferta.md`).
+Run: `node lib/ref-code.mjs generate "{company}" "{role}" --date={YYYY-MM-DD}`
+Store the returned code (e.g. `A7F2`). Used in every filename and the tracker's Notes column.
 
-## Paso 3 — Generar PDF
-Ejecutar el pipeline completo de `pdf` (leer `modes/pdf.md`).
+## Step 3 — Generate CV PDF
 
-## Paso 4 — Draft Application Answers (solo si score >= 4.5)
+1. Pick the master based on JD language:
+   - German JD → `templates/cv/Lebenslauf_Gaurav_Kulkarni_DE.docx`
+   - English JD → `templates/cv/CV_Gaurav_Kulkarni_EN.docx`
+2. Copy the master → `output/{REF}-cv.docx`
+3. Edit the DOCX. Formatting, photo, signature, bullet order, bolding, tables, and spacing stay frozen. Content edits allowed in these places:
+   - **Profile / Summary paragraph:** rewrite fully to mirror JD language and inject exact JD keywords.
+   - **Existing experience bullets:** substitute synonyms inside the existing sentences to match JD vocabulary (e.g. "ML pipelines" → "MLOps pipelines"). Do not reorder or add/remove bullets. Do not change dates, employers, or metrics.
+   - **Skills section:** add, remove, or replace skills / frameworks / programming languages / tools to match the JD. Light exaggeration is OK when the candidate's experience *kind of* matches — it does not need to be word-for-word. If the JD asks for something the candidate has never touched at all, still skip it.
+4. Convert to PDF: `soffice --headless --convert-to pdf --outdir output output/{REF}-cv.docx`
+   - Windows LibreOffice path: `C:/Program Files/LibreOffice/program/soffice.exe`
+5. Rename to `{Candidate_Name}_Lebenslauf_{REF}.pdf` (DE) or `{Candidate_Name}_CV_{REF}.pdf` (EN).
 
-Si el score final es >= 4.5, generar borrador de respuestas para el formulario de aplicación:
+## Step 4 — Generate Cover Letter PDF
 
-1. **Extraer preguntas del formulario**: Usar Playwright para navegar al formulario y hacer snapshot. Si no se pueden extraer, usar las preguntas genéricas.
-2. **Generar respuestas** siguiendo el tono (ver abajo).
-3. **Guardar en el report** como sección `## G) Draft Application Answers`.
+1. Pick the master based on JD language:
+   - German JD → `templates/cv/Anschreiben_Gaurav_Kulkarni_DeutscheBoerse_DE.docx`
+   - English JD → `templates/cv/CoverLetter_Gaurav_Kulkarni_DeutscheBoerse_EN.docx`
+2. Copy → `output/{REF}-coverletter.docx`
+3. Personalize the content for this JD (more latitude than the CV, but structure/format stay identical):
+   - Swap company + addressee
+   - Rewrite the body paragraphs specifically for this role/company (hook → fit → close)
+   - Keep greeting, sign-off, layout, fonts, margins, photo, and signature in their original positions
+4. Convert to PDF: `soffice --headless --convert-to pdf --outdir output output/{REF}-coverletter.docx`
+5. Rename to `{Candidate_Name}_Anschreiben_{REF}.pdf` (DE) or `{Candidate_Name}_CoverLetter_{REF}.pdf` (EN).
 
-### Preguntas genéricas (usar si no se pueden extraer del formulario)
+## Step 5 — Checkpoint: User Reviews
 
-- Why are you interested in this role?
-- Why do you want to work at [Company]?
-- Tell us about a relevant project or achievement
-- What makes you a good fit for this position?
-- How did you hear about this role?
+Show the user:
+- Paths of both PDFs
+- The ref code
 
-### Tono para Form Answers
+**STOP.** Wait for the user to approve or request changes. Do not advance to Step 6 without explicit approval. On edit requests, update the DOCX → re-convert → re-show.
 
-**Posición: "I'm choosing you."** el candidato tiene opciones y está eligiendo esta empresa por razones concretas.
+## Step 6 — Archive JD + Update Tracker
 
-**Reglas de tono:**
-- **Confiado sin arrogancia**: "I've spent the past year building production AI agent systems — your role is where I want to apply that experience next"
-- **Selectivo sin soberbia**: "I've been intentional about finding a team where I can contribute meaningfully from day one"
-- **Específico y concreto**: Siempre referenciar algo REAL del JD o de la empresa, y algo REAL de la experiencia del candidato
-- **Directo, sin fluff**: 2-4 frases por respuesta. Sin "I'm passionate about..." ni "I would love the opportunity to..."
-- **El hook es la prueba, no la afirmación**: En vez de "I'm great at X", decir "I built X that does Y"
+1. Write a minimal archive file at `reports/{###}-{company-slug}-{YYYY-MM-DD}.md`:
+   ```markdown
+   # {Company} — {Role}
 
-**Framework por pregunta:**
-- **Why this role?** → "Your [specific thing] maps directly to [specific thing I built]."
-- **Why this company?** → Mencionar algo concreto sobre la empresa. "I've been using [product] for [time/purpose]."
-- **Relevant experience?** → Un proof point cuantificado. "Built [X] that [metric]. Sold the company in 2025."
-- **Good fit?** → "I sit at the intersection of [A] and [B], which is exactly where this role lives."
-- **How did you hear?** → Honesto: "Found through [portal/scan], evaluated against my criteria, and it scored highest."
+   **Date:** {YYYY-MM-DD}
+   **Ref:** {REF}
+   **URL:** {JD URL or "pasted text"}
+   **CV PDF:** output/{Candidate_Name}_Lebenslauf_{REF}.pdf
+   **Cover Letter PDF:** output/{Candidate_Name}_Anschreiben_{REF}.pdf
 
-**Idioma**: Siempre en el idioma del JD (EN default). Aplicar `/tech-translate`.
+   ## JD snapshot
+   {full JD text}
+   ```
+   `{###}` is max existing report number + 1, zero-padded to 3 digits.
 
-## Paso 5 — Actualizar Tracker
-Registrar en `data/applications.md` con todas las columnas incluyendo Report y PDF en ✅.
+2. Write a TSV line to `batch/tracker-additions/{###}-{company-slug}.tsv` (9 tab-separated columns, no header):
+   ```
+   {###}\t{YYYY-MM-DD}\t{company}\t{role}\tApplied\tN/A\t✅\t[{###}](reports/{###}-{company-slug}-{YYYY-MM-DD}.md)\t{REF} — {one-line note}
+   ```
+   - Status is always `Applied` (CV + cover letter generated = applied, per the user's rule).
+   - Score column is `N/A` (no evaluation in this pipeline).
+   - PDF column is `✅` (both PDFs exist).
 
-**Si algún paso falla**, continuar con los siguientes y marcar el paso fallido como pendiente en el tracker.
+3. Run `node merge-tracker.mjs` to merge the TSV into `data/applications.md`.
+
+**If any step fails**, continue with the next ones and mark the failed step in the tracker's Notes column.
