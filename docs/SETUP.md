@@ -25,9 +25,17 @@ cp config/profile.example.yml config/profile.yml
 
 Edit `config/profile.yml` with your personal details: name, email, target roles, narrative, proof points.
 
-### 3. Add your CV
+### 3. Add your CV (DOCX masters)
 
-Create `cv.md` in the project root with your full CV in markdown format. This is the source of truth for all evaluations and PDFs.
+Place your Word CV in `templates/cv/` as both:
+- `CV_Gaurav_Kulkarni_EN.docx` — English master
+- `Lebenslauf_Gaurav_Kulkarni_DE.docx` — German master
+
+And your cover letter masters:
+- `CoverLetter_Gaurav_Kulkarni_DeutscheBoerse_EN.docx`
+- `Anschreiben_Gaurav_Kulkarni_DeutscheBoerse_DE.docx`
+
+The DOCX is the canonical source for all evaluations and generated PDFs — content, formatting, photo, and signature all live there. Per-job edits are made in place via `python-docx` and converted to PDF via LibreOffice headless (`soffice`). There is no markdown CV layer.
 
 (Optional) Create `article-digest.md` with proof points from your portfolio projects/articles.
 
@@ -67,8 +75,8 @@ Then paste a job offer URL or description. Career-ops will automatically evaluat
 ## Verify Setup
 
 ```bash
-node cv-sync-check.mjs      # Check configuration
-node verify-pipeline.mjs     # Check pipeline integrity
+node doctor.mjs              # Environment + DOCX masters check
+node verify-pipeline.mjs     # Pipeline integrity check
 ```
 
 ## Build Dashboard (Optional)

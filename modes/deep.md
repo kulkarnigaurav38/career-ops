@@ -38,7 +38,7 @@ Contexto: Estoy evaluando una candidatura para [rol] en [empresa]. Necesito info
 - ¿Cómo se posicionan vs competencia?
 
 ### 6. Ángulo del candidato
-Dado mi perfil (read from cv.md and profile.yml for specific experience):
+Dado mi perfil (leer DOCX masters en `templates/cv/` vía `python-docx` y `config/profile.yml` para experiencia específica):
 - ¿Qué valor único aporto a este equipo?
 - ¿Qué proyectos míos son más relevantes?
 - ¿Qué historia debería contar en la entrevista?

@@ -13,8 +13,7 @@ The portfolio that goes with this system is also open source: [cv-santiago](http
 There are two layers. Read `DATA_CONTRACT.md` for the full list.
 
 **User Layer (NEVER auto-updated, personalization goes HERE):**
-- `cv.md`, `cv.de.md`, `cover-letter.md`, `cover-letter.de.md`
-- `templates/cv/*.docx` (DOCX masters for CV + cover letter, DE + EN — canonical source with photo + signature)
+- `templates/cv/*.docx` (DOCX masters for CV + cover letter, DE + EN — canonical source: content, formatting, photo, and signature all live here)
 - `config/profile.yml`, `modes/_profile.md`, `article-digest.md`, `portals.yml`
 - `data/*`, `reports/*`, `output/*`, `interview-prep/*`
 
@@ -52,8 +51,8 @@ AI-powered job search automation built on Claude Code: pipeline tracking, offer 
 Career-ops is a set of Node scripts + markdown modes that Claude reads as instructions. Two main data flows:
 
 - **Offers:** `portals.yml` → scan → `data/pipeline.md` (URLs) → `oferta` mode → `reports/{NNN}-slug-date.md` + `batch/tracker-additions/*.tsv` → `merge-tracker.mjs` → `data/applications.md`.
-- **CVs:** `templates/cv/{Lebenslauf_Gaurav_Kulkarni_DE,CV_Gaurav_Kulkarni_EN}.docx` → copy → tailor Profile/Summary (+ truthful keyword synonyms in existing bullets) → `soffice --headless --convert-to pdf` → `output/*.pdf`.
-- **Cover Letters:** `cover-letter.md` / `cover-letter.de.md` → `templates/cover-letter-template.html` → `generate-pdf.mjs` (Playwright) → `output/*.pdf`.
+- **CVs:** `templates/cv/{Lebenslauf_Gaurav_Kulkarni_DE,CV_Gaurav_Kulkarni_EN}.docx` → copy → tailor Profile/Summary + Skills + truthful keyword synonyms in existing bullets via `python-docx` → `soffice --headless --convert-to pdf` → `output/*.pdf`.
+- **Cover Letters:** `templates/cv/{Anschreiben_Gaurav_Kulkarni_DeutscheBoerse_DE,CoverLetter_Gaurav_Kulkarni_DeutscheBoerse_EN}.docx` → copy → tailor recipient + body paragraphs per JD via `python-docx` → `soffice --headless --convert-to pdf` → `output/*.pdf`.
 
 The `dashboard/` is a Go TUI (`main.go`) that reads `applications.md` for a live overview. Integrity scripts (`verify`, `normalize`, `dedup`) enforce invariants between reports and the tracker.
 
@@ -102,7 +101,7 @@ When using [OpenCode](https://opencode.ai), the following slash commands are ava
 
 **Before doing ANYTHING else, check if the system is set up.** Run these checks silently every time a session starts:
 
-1. Does `cv.md` exist?
+1. Do the DOCX masters exist (`templates/cv/CV_Gaurav_Kulkarni_EN.docx` and `templates/cv/Lebenslauf_Gaurav_Kulkarni_DE.docx`)?
 2. Does `config/profile.yml` exist (not just profile.example.yml)?
 3. Does `modes/_profile.md` exist (not just _profile.template.md)?
 4. Does `portals.yml` exist (not just templates/portals.example.yml)?
@@ -112,15 +111,9 @@ If `modes/_profile.md` is missing, copy from `modes/_profile.template.md` silent
 **If ANY of these is missing, enter onboarding mode.** Do NOT proceed with evaluations, scans, or any other mode until the basics are in place. Guide the user step by step:
 
 #### Step 1: CV (required)
-If `cv.md` is missing, ask:
-> "I don't have your CV yet. You can either:
-> 1. Paste your CV here and I'll convert it to markdown
-> 2. Paste your LinkedIn URL and I'll extract the key info
-> 3. Tell me about your experience and I'll draft a CV for you
->
-> Which do you prefer?"
+If the DOCX masters are missing, ask the user to drop their CV (as a `.docx` they're happy with) into `templates/cv/` as both `CV_Gaurav_Kulkarni_EN.docx` (English) and `Lebenslauf_Gaurav_Kulkarni_DE.docx` (German). The DOCX is the canonical source — formatting, photo, signature, and all content live there. Per-job edits are made in-place via `python-docx` and converted to PDF via LibreOffice headless. **There is no markdown CV layer.**
 
-Create `cv.md` from whatever they provide. Make it clean markdown with standard sections (Summary, Experience, Projects, Education, Skills).
+If they don't yet have a Word CV, suggest they start from a clean Word template (or copy an existing CV), paste in their content, embed their headshot + signature, and save to the paths above.
 
 #### Step 2: Profile (required)
 If `config/profile.yml` is missing, copy from `config/profile.example.yml` and then ask:
@@ -237,9 +230,9 @@ Default modes are in `modes/` (English). Additional language-specific modes are 
 
 ### CV Source of Truth
 
-- `cv.md` / `cv.de.md` in project root is the canonical CV content (markdown)
+- `templates/cv/CV_Gaurav_Kulkarni_EN.docx` (EN) and `templates/cv/Lebenslauf_Gaurav_Kulkarni_DE.docx` (DE) are the canonical CV — content, formatting, photo, and signature all live in the DOCX. **There is no markdown CV.**
 - `article-digest.md` has detailed proof points (optional)
-- **NEVER hardcode metrics** -- read them from these files at evaluation time
+- **NEVER hardcode metrics** — read them from the DOCX masters (via `python-docx`) or `article-digest.md` at evaluation time
 
 ### CV + Cover Letter Generation -- DOCX Pipeline
 
@@ -261,6 +254,7 @@ CV and cover letter masters are Word documents in `templates/cv/`. Per job: copy
 2. Tailor **only the content**, using `python-docx` or pandoc roundtrip. Formatting, photo, signature, bullet order, bolding, tables, and spacing stay frozen. Editable surfaces:
    - **Profile/Summary** paragraph — rewrite fully to mirror JD language and inject exact JD keywords
    - **Existing experience bullets** — synonym substitution inside the existing sentences only, to match JD vocabulary (e.g., "ML pipelines" → "MLOps pipelines"). Do NOT reorder, add, or remove bullets. Do NOT change dates, employers, or metrics.
+   - **Projects section** — same rule as experience bullets: synonym substitution only, do NOT reorder, add, or remove projects. The **Nest Parking — Full-Stack Parking Reservation Platform** entry (current freelance project, 2026, Little Rock AR) MUST appear in every generated CV (DE and EN) — never delete it, never replace it with another project, and keep it as the first project so it stays the most prominent recent freelance work.
    - **Skills section** — add, remove, or replace skills / frameworks / programming languages / tools to match the JD. Light exaggeration is OK when the candidate's experience *kind of* matches (no need to be word-for-word). If the JD asks for something the candidate has never touched at all, skip it.
 3. Convert to PDF: `soffice --headless --convert-to pdf --outdir output output/{ref}-cv.docx`
 4. Output: `output/{ref}-cv.pdf`
@@ -276,8 +270,7 @@ CV and cover letter masters are Word documents in `templates/cv/`. Per job: copy
 
 **Tooling:**
 - LibreOffice `soffice` on Windows: typically `C:/Program Files/LibreOffice/program/soffice.exe`. If not installed, prompt the user and fall back to delivering the `.docx`.
-- DOCX editing: `python-docx` preferred for targeted paragraph edits (keeps formatting intact). Pandoc `docx → md → docx` loses styling and is only a fallback.
-- `generate-pdf.mjs` (HTML → PDF) is legacy — not used for the CV or the new cover letter pipeline.
+- DOCX editing: `python-docx` — set run text in place to preserve fonts, colors, hyperlinks, photo, and signature. Do not roundtrip via markdown — it destroys formatting.
 
 ---
 
@@ -314,8 +307,6 @@ All defined in `package.json` — run with `npm run <name>` or `node <script>.mj
 | `npm run normalize` | Rewrite `applications.md` statuses to canonical values |
 | `npm run dedup` | Remove duplicate tracker entries |
 | `npm run merge` | Merge `batch/tracker-additions/*.tsv` into `applications.md` |
-| `npm run pdf` | Render `output/*.html` → PDF via Playwright (cover letters only) |
-| `npm run sync-check` | Warn if `cv.md` and reports drift |
 | `npm run liveness` | Check if saved JD URLs are still active |
 | `npm run update:check` / `npm run update` / `npm run rollback` | System updates |
 | `node test-all.mjs` | Run the full test script |

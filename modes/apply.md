@@ -73,7 +73,7 @@ Identificar TODAS las preguntas visibles:
 
 Clasificar cada pregunta:
 - **Ya respondida en Section G** → adaptar la respuesta existente
-- **Nueva pregunta** → generar respuesta desde el report + cv.md
+- **Nueva pregunta** → generar respuesta desde el report + DOCX masters en `templates/cv/` (vía `python-docx`)
 
 ## Paso 5 — Generar respuestas
 

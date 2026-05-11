@@ -22,7 +22,7 @@ Tableau avec :
 
 ## Bloc B -- Match avec le CV
 
-Lire `cv.md`. Creer un tableau ou chaque prerequis de l'offre est mappe sur des lignes exactes du CV.
+Lire les masters DOCX (`templates/cv/CV_Gaurav_Kulkarni_EN.docx` ou `Lebenslauf_Gaurav_Kulkarni_DE.docx`) via `python-docx`. Creer un tableau ou chaque prerequis de l'offre est mappe sur des lignes exactes du CV.
 
 **Adapte a l'archetype :**
 - FDE -> prioriser les proof points de livraison rapide et proximite client

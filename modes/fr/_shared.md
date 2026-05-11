@@ -6,7 +6,7 @@
      Ce fichier contient le contexte partage pour tous les modes
      career-ops en version francaise. Avant d'utiliser career-ops, tu DOIS :
      1. Remplir config/profile.yml avec tes informations personnelles
-     2. Creer cv.md a la racine du projet (CV en Markdown)
+     2. Placer les masters DOCX dans templates/cv/ (CV + lettre de motivation, DE + EN)
      3. (Optionnel) Creer article-digest.md avec tes proof points
      4. Adapter les sections marquees [PERSONNALISER] ci-dessous
      ============================================================ -->
@@ -15,12 +15,12 @@
 
 | Fichier | Chemin | Quand |
 |---------|--------|-------|
-| cv.md | `cv.md` (racine du projet) | TOUJOURS |
+| masters DOCX | `templates/cv/CV_Gaurav_Kulkarni_EN.docx` (EN) / `templates/cv/Lebenslauf_Gaurav_Kulkarni_DE.docx` (DE) | TOUJOURS — lire via `python-docx` |
 | article-digest.md | `article-digest.md` (si existant) | TOUJOURS (proof points detailles) |
 | profile.yml | `config/profile.yml` | TOUJOURS (identite et roles cibles) |
 
-**REGLE : Ne JAMAIS coder en dur des metriques issues des proof points.** Les lire depuis `cv.md` et `article-digest.md` au moment de l'evaluation.
-**REGLE : Pour les metriques d'articles/projets, `article-digest.md` a priorite sur `cv.md`** (`cv.md` peut contenir des chiffres plus anciens).
+**REGLE : Ne JAMAIS coder en dur des metriques issues des proof points.** Les lire depuis les masters DOCX (via `python-docx`) et `article-digest.md` au moment de l'evaluation. Il n'y a plus de couche CV en Markdown.
+**REGLE : Pour les metriques d'articles/projets, `article-digest.md` a priorite sur les bullets du DOCX** (les bullets peuvent contenir des chiffres plus anciens).
 
 ---
 
@@ -46,16 +46,16 @@ Le skill traite TOUS les roles cibles avec le meme soin. Aucun n'est primaire ou
 
 ### Framing adaptatif par archetype
 
-> **Metriques concretes : les lire depuis `cv.md` et `article-digest.md` au moment de l'evaluation. JAMAIS les coder en dur ici.**
+> **Metriques concretes : les lire depuis les masters DOCX (via `python-docx`) et `article-digest.md` au moment de l'evaluation. JAMAIS les coder en dur ici.**
 
 | Si le role est... | Mettre en avant chez le candidat... | Sources de proof points |
 |-------------------|-------------------------------------|-------------------------|
-| Platform / LLMOps | Experience production, observability, evals, closed-loop | article-digest.md + cv.md |
-| Agentic / Automation | Orchestration multi-agent, HITL, fiabilite, couts | article-digest.md + cv.md |
-| Technical AI PM | Product discovery, PRDs, metriques, gestion des parties prenantes | cv.md + article-digest.md |
-| Solutions Architect | Conception systeme, integrations, pret pour l'entreprise | article-digest.md + cv.md |
-| Forward Deployed Engineer | Livraison rapide, proximite client, prototype a production | cv.md + article-digest.md |
-| AI Transformation Lead | Conduite du changement, enablement d'equipe, adoption | cv.md + article-digest.md |
+| Platform / LLMOps | Experience production, observability, evals, closed-loop | article-digest.md + masters DOCX |
+| Agentic / Automation | Orchestration multi-agent, HITL, fiabilite, couts | article-digest.md + masters DOCX |
+| Technical AI PM | Product discovery, PRDs, metriques, gestion des parties prenantes | masters DOCX + article-digest.md |
+| Solutions Architect | Conception systeme, integrations, pret pour l'entreprise | article-digest.md + masters DOCX |
+| Forward Deployed Engineer | Livraison rapide, proximite client, prototype a production | masters DOCX + article-digest.md |
+| AI Transformation Lead | Conduite du changement, enablement d'equipe, adoption | masters DOCX + article-digest.md |
 
 <!-- [PERSONNALISER] Associe tes projets/articles concrets aux archetypes ci-dessus -->
 
@@ -168,7 +168,7 @@ Dans les offres et negociations francophones, certains termes n'existent pas sur
 ### JAMAIS
 
 1. Inventer de l'experience ou des metriques
-2. Modifier `cv.md` ou les fichiers portfolio
+2. Modifier les masters DOCX dans `templates/cv/` directement — creer uniquement des copies par offre dans `output/`
 3. Soumettre des candidatures au nom du candidat
 4. Partager un numero de telephone dans les messages generes
 5. Recommander une remuneration en dessous du marche
@@ -179,8 +179,7 @@ Dans les offres et negociations francophones, certains termes n'existent pas sur
 ### TOUJOURS
 
 0. **Lettre de motivation :** Si le formulaire le permet, TOUJOURS en inclure une. PDF dans le meme design visuel que le CV. Citations de l'offre mappees sur les proof points. 1 page max.
-1. Lire `cv.md` et `article-digest.md` (si existant) avant d'evaluer une offre
-1b. **Premiere evaluation de chaque session :** Lancer `node cv-sync-check.mjs` via Bash. En cas d'alertes, prevenir le candidat
+1. Lire les masters DOCX (via `python-docx`) et `article-digest.md` (si existant) avant d'evaluer une offre
 2. Detecter l'archetype du role et adapter le framing
 3. Citer des lignes exactes du CV lors du matching
 4. Utiliser WebSearch pour les donnees de remuneration et d'entreprise
@@ -199,7 +198,7 @@ Dans les offres et negociations francophones, certains termes n'existent pas sur
 | WebSearch | Recherche remuneration, tendances, culture d'entreprise, contacts LinkedIn, fallback offres |
 | WebFetch | Fallback pour extraire les offres depuis des pages statiques |
 | Playwright | Verifier si les offres sont actives (browser_navigate + browser_snapshot), extraire les offres depuis des SPAs. **CRITIQUE : JAMAIS 2+ agents en parallele avec Playwright -- ils partagent la meme instance navigateur** |
-| Read | cv.md, article-digest.md, masters DOCX dans `templates/cv/` |
+| Read | masters DOCX dans `templates/cv/` (via `python-docx`), `article-digest.md` |
 | Write | Copies `.docx` adaptees dans `output/`, applications.md, reports .md |
 | Edit | Mettre a jour le tracker ; adapter le contenu DOCX (reecrire Profil + synonymes dans bullets existants + section Skills ajout/remplacement pour coller au JD, legere exageration OK si l'experience correspond approximativement). Aucun changement de format, photo, signature, ordre des bullets ou metriques. |
 | Bash | `soffice --headless --convert-to pdf` pour DOCX → PDF (CV + lettre de motivation) |

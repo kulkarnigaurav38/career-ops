@@ -17,16 +17,16 @@ No scoring. No A–F evaluation. No STAR stories. No form filling. Just tailored
 
 | File | Absolute path | When |
 |------|---------------|------|
-| cv.md | `cv.md` (project root) | ALWAYS (content facts for the CV) |
+| Lebenslauf DE master | `templates/cv/Lebenslauf_Gaurav_Kulkarni_DE.docx` | CV content + PDF when JD is German |
+| CV EN master | `templates/cv/CV_Gaurav_Kulkarni_EN.docx` | CV content + PDF when JD is English |
+| Anschreiben DE master | `templates/cv/Anschreiben_Gaurav_Kulkarni_DeutscheBoerse_DE.docx` | Cover letter content + PDF when JD is German |
+| Cover Letter EN master | `templates/cv/CoverLetter_Gaurav_Kulkarni_DeutscheBoerse_EN.docx` | Cover letter content + PDF when JD is English |
 | article-digest.md | `article-digest.md` (project root) | ALWAYS (proof points, current metrics) |
-| Lebenslauf DE master | `templates/cv/Lebenslauf_Gaurav_Kulkarni_DE.docx` | CV PDF when JD is German |
-| CV EN master | `templates/cv/CV_Gaurav_Kulkarni_EN.docx` | CV PDF when JD is English |
-| Anschreiben DE master | `templates/cv/Anschreiben_Gaurav_Kulkarni_DeutscheBoerse_DE.docx` | Cover letter PDF when JD is German |
-| Cover Letter EN master | `templates/cv/CoverLetter_Gaurav_Kulkarni_DeutscheBoerse_EN.docx` | Cover letter PDF when JD is English |
 
 **RULES:**
-- NEVER write to `cv.md` or portfolio files. They are read-only references.
-- NEVER hardcode metrics. Read them from `cv.md` + `article-digest.md`. `article-digest.md` wins when numbers disagree.
+- The DOCX masters are the canonical CV / cover letter — content, formatting, photo, and signature all live there. There is no markdown CV layer. Read content via `python-docx`.
+- NEVER write to the DOCX masters in `templates/cv/` directly — only create per-job copies in `output/`.
+- NEVER hardcode metrics. Read them from the DOCX masters (via `python-docx`) + `article-digest.md`. `article-digest.md` wins when numbers disagree.
 - Headshot + signature are embedded in the DOCX masters. Do NOT touch image placement, size, or anchors.
 
 ---
@@ -182,13 +182,13 @@ On failure:
 
 ### NEVER
 1. Invent experience or metrics
-2. Modify `cv.md`, `article-digest.md`, or portfolio files
+2. Modify the DOCX masters in `templates/cv/` directly, or `article-digest.md` — only create per-job copies in `output/`
 3. Touch the photo, signature, or any formatting in the DOCX masters
 4. Generate a PDF without first reading the JD
 5. Use corporate-speak ("leveraged", "passionate about", "in order to")
 
 ### ALWAYS
-1. Read `cv.md` + `article-digest.md` before tailoring
+1. Read the DOCX masters (via `python-docx`) + `article-digest.md` before tailoring
 2. Match artifact language to JD language (German JD → German CV + Anschreiben; English JD → English CV + Cover Letter)
 3. Inject exact JD keywords into the Profile/Summary
 4. Expand/replace the Skills section to align with the JD (light exaggeration OK when experience kind-of-matches)

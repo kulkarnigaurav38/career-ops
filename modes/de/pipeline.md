@@ -54,10 +54,4 @@ Verarbeitet URLs von Stellenanzeigen, die in `data/pipeline.md` gesammelt wurden
 
 ## Synchronisierung der Quellen
 
-Vor dem Verarbeiten irgendeiner URL die Sync prüfen:
-
-```bash
-node cv-sync-check.mjs
-```
-
-Bei Abweichungen den Kandidaten warnen, bevor weitergearbeitet wird.
+Die DOCX-Master in `templates/cv/` sind die einzige Quelle der Wahrheit für CV und Anschreiben. Es gibt keinen separaten Sync-Schritt — Änderungen erfolgen via `python-docx` direkt auf den Kopien in `output/`.

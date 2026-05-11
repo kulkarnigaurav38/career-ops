@@ -12,13 +12,13 @@
 
 | File | Path | When |
 |------|------|------|
-| cv.md | `cv.md` (project root) | ALWAYS |
+| DOCX CV masters | `templates/cv/CV_Gaurav_Kulkarni_EN.docx` (EN) / `templates/cv/Lebenslauf_Gaurav_Kulkarni_DE.docx` (DE) | ALWAYS — read via `python-docx` |
 | article-digest.md | `article-digest.md` (if exists) | ALWAYS (detailed proof points) |
 | profile.yml | `config/profile.yml` | ALWAYS (candidate identity and targets) |
 | _profile.md | `modes/_profile.md` | ALWAYS (user archetypes, narrative, negotiation) |
 
-**RULE: NEVER hardcode metrics from proof points.** Read them from cv.md + article-digest.md at evaluation time.
-**RULE: For article/project metrics, article-digest.md takes precedence over cv.md.**
+**RULE: NEVER hardcode metrics from proof points.** Read them from the DOCX masters (via `python-docx`) + `article-digest.md` at evaluation time. There is no markdown CV layer.
+**RULE: For article/project metrics, `article-digest.md` takes precedence over the DOCX bullets.**
 **RULE: Read _profile.md AFTER this file. User customizations in _profile.md override defaults here.**
 
 ---
@@ -62,7 +62,7 @@ After detecting archetype, read `modes/_profile.md` for the user's specific fram
 ### NEVER
 
 1. Invent experience or metrics
-2. Modify cv.md or portfolio files
+2. Modify the DOCX masters in `templates/cv/` directly — only create per-job copies in `output/`
 3. Submit applications on behalf of the candidate
 4. Share phone number in generated messages
 5. Recommend comp below market rate
@@ -73,8 +73,7 @@ After detecting archetype, read `modes/_profile.md` for the user's specific fram
 ### ALWAYS
 
 0. **Cover letter:** If the form allows it, ALWAYS include one. Same visual design as CV. JD quotes mapped to proof points. 1 page max.
-1. Read cv.md, _profile.md, and article-digest.md (if exists) before evaluating
-1b. **First evaluation of each session:** Run `node cv-sync-check.mjs`. If warnings, notify user.
+1. Read the DOCX CV masters (via `python-docx`), `_profile.md`, and `article-digest.md` (if exists) before evaluating
 2. Detect the role archetype and adapt framing per _profile.md
 3. Cite exact lines from CV when matching
 4. Use WebSearch for comp and company data
@@ -93,7 +92,7 @@ After detecting archetype, read `modes/_profile.md` for the user's specific fram
 | WebSearch | Comp research, trends, company culture, LinkedIn contacts, fallback for JDs |
 | WebFetch | Fallback for extracting JDs from static pages |
 | Playwright | Verify offers (browser_navigate + browser_snapshot). **NEVER 2+ agents with Playwright in parallel.** |
-| Read | cv.md, _profile.md, article-digest.md, DOCX masters in `templates/cv/` |
+| Read | DOCX masters in `templates/cv/` (via `python-docx`), `_profile.md`, `article-digest.md` |
 | Write | Tailored `.docx` copies in `output/`, applications.md, reports .md |
 | Edit | Update tracker; tailor DOCX content (Profile/Summary rewrite + synonym swaps inside existing bullets + Skills section add/replace to match JD, light exaggeration OK when experience kind-of-matches). No formatting, photo, signature, bullet-order, or metrics changes. |
 | Bash | `soffice --headless --convert-to pdf` for DOCX → PDF (CV + cover letter) |
@@ -119,7 +118,7 @@ These rules apply to ALL generated text that ends up in candidate-facing documen
 - "demonstrated ability to" / "best practices" (name the practice)
 
 ### Unicode normalization for ATS
-`generate-pdf.mjs` automatically normalizes em-dashes, smart quotes, and zero-width characters to ASCII equivalents for maximum ATS compatibility. But avoid generating them in the first place.
+When tailoring DOCX content via `python-docx`, prefer ASCII equivalents for em-dashes, smart quotes, and zero-width characters where possible — maximizes ATS parser compatibility. Avoid generating them in the first place.
 
 ### Vary sentence structure
 - Don't start every bullet with the same verb

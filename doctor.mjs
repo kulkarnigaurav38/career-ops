@@ -63,15 +63,22 @@ async function checkPlaywright() {
 }
 
 function checkCv() {
-  if (existsSync(join(projectRoot, 'cv.md'))) {
-    return { pass: true, label: 'cv.md found' };
+  const en = join(projectRoot, 'templates', 'cv', 'CV_Gaurav_Kulkarni_EN.docx');
+  const de = join(projectRoot, 'templates', 'cv', 'Lebenslauf_Gaurav_Kulkarni_DE.docx');
+  const enExists = existsSync(en);
+  const deExists = existsSync(de);
+  if (enExists && deExists) {
+    return { pass: true, label: 'DOCX CV masters found (EN + DE)' };
   }
+  const missing = [];
+  if (!enExists) missing.push('templates/cv/CV_Gaurav_Kulkarni_EN.docx');
+  if (!deExists) missing.push('templates/cv/Lebenslauf_Gaurav_Kulkarni_DE.docx');
   return {
     pass: false,
-    label: 'cv.md not found',
+    label: `DOCX CV master(s) missing: ${missing.join(', ')}`,
     fix: [
-      'Create cv.md in the project root with your CV in markdown',
-      'See examples/ for reference CVs',
+      'Place your Word CV in templates/cv/ as both CV_Gaurav_Kulkarni_EN.docx (English) and Lebenslauf_Gaurav_Kulkarni_DE.docx (German)',
+      'The DOCX is the canonical source — content, formatting, photo, and signature all live there',
     ],
   };
 }

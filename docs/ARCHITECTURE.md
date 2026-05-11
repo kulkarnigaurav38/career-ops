@@ -22,10 +22,11 @@
             │                                          │
      ┌──────▼──────────────────────────────────────────▼──────┐
      │                    Output Pipeline                      │
-     │  ┌──────────┐  ┌────────────┐  ┌───────────────────┐  │
-     │  │ Report.md│  │  PDF (HTML  │  │ Tracker TSV       │  │
-     │  │ (A-F eval)│  │  → Puppeteer)│  │ (merge-tracker)  │  │
-     │  └──────────┘  └────────────┘  └───────────────────┘  │
+     │  ┌──────────┐  ┌─────────────────┐  ┌──────────────┐  │
+     │  │ Report.md│  │  PDF (DOCX copy │  │ Tracker TSV  │  │
+     │  │ (A-F eval)│  │  → python-docx  │  │(merge-track)│  │
+     │  │           │  │  → soffice PDF) │  │              │  │
+     │  └──────────┘  └─────────────────┘  └──────────────┘  │
      └────────────────────────────────────────────────────────┘
                                │
                     ┌──────────▼──────────┐
@@ -48,7 +49,7 @@
    - F: Interview prep (STAR stories)
 5. **Score**: Weighted average across 10 dimensions (1-5)
 6. **Report**: Save as `reports/{num}-{company}-{date}.md`
-7. **PDF**: Generate ATS-optimized CV (`generate-pdf.mjs`)
+7. **PDF**: Copy DOCX master → tailor via `python-docx` → convert to PDF via `soffice --headless`
 8. **Track**: Write TSV to `batch/tracker-additions/`, auto-merged
 
 ## Batch Processing
@@ -73,12 +74,11 @@ The orchestrator manages parallelism, state, retries, and resume.
 ## Data Flow
 
 ```
-cv.md                    →  Evaluation context
+templates/cv/*.docx      →  Canonical CV + cover letter (content, formatting, photo, signature)
 article-digest.md        →  Proof points for matching
 config/profile.yml       →  Candidate identity
 portals.yml              →  Scanner configuration
 templates/states.yml     →  Canonical status values
-templates/cv-template.html → PDF generation template
 ```
 
 ## File Naming Conventions
@@ -97,7 +97,7 @@ Scripts maintain data consistency:
 | `verify-pipeline.mjs` | Health check: statuses, duplicates, links |
 | `dedup-tracker.mjs` | Removes duplicate entries by company+role |
 | `normalize-statuses.mjs` | Maps status aliases to canonical values |
-| `cv-sync-check.mjs` | Validates setup consistency |
+| `doctor.mjs` | Setup validation (Node, Playwright, DOCX masters, profile) |
 
 ## Dashboard TUI
 

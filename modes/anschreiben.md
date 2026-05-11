@@ -1,108 +1,102 @@
 # Modo: anschreiben — Generación de Anschreiben / Cover Letter
 
-Genera un Anschreiben (cover letter) personalizado para cada oferta, con el mismo diseño visual que el CV. Siempre 1 página, formato A4.
+Genera un Anschreiben (cover letter) personalizado para cada oferta, partiendo del DOCX master que ya contiene tu diseño visual, foto y firma. Per-job: copiar master → adaptar contenido vía `python-docx` → convertir a PDF con `soffice`. 1 página, A4.
 
 ## Fuentes de datos
 
-1. **Master cover letter** → seleccionar según idioma del JD:
-   - JD en alemán → leer `cover-letter.de.md` (voz y tono de referencia)
-   - JD en inglés → leer `cover-letter.md`
-   - (o usar `language.sources.cover_letter` de `config/profile.yml`)
-2. **CV** → `cv.de.md` o `cv.md` (según idioma)
-3. **Perfil** → `config/profile.yml` (proof points, superpowers, exit story)
+1. **Master cover letter DOCX** (canonical — formato, foto y firma viven aquí):
+   - JD en alemán → `templates/cv/Anschreiben_Gaurav_Kulkarni_DeutscheBoerse_DE.docx`
+   - JD en inglés → `templates/cv/CoverLetter_Gaurav_Kulkarni_DeutscheBoerse_EN.docx`
+2. **CV** → DOCX masters en `templates/cv/` (`Lebenslauf_Gaurav_Kulkarni_DE.docx` o `CV_Gaurav_Kulkarni_EN.docx`), leídos vía `python-docx` para validar proof points y métricas
+3. **Perfil** → `config/profile.yml` (proof points, superpowers, exit story, contacto)
 4. **Narrativa** → `modes/_profile.md` (adaptive framing, signature line, negotiation scripts)
 5. **JD** → el job description actual (texto o URL ya extraída)
 
+**Regla de idioma (CRÍTICA):** el cover letter SIEMPRE va en el mismo idioma que el JD. Nunca mezclar.
+
 ## Pipeline completo
 
-1. Detecta idioma del JD → selecciona master cover letter + CV en el mismo idioma
-2. Lee el master cover letter como **referencia de voz y estructura** (NO copiar textualmente — adaptar)
-3. Extrae del JD:
+1. Detectar idioma del JD → seleccionar master DOCX correspondiente
+2. Extraer del JD:
    - Nombre de empresa y ciudad
    - Título exacto del rol
    - 3-4 requisitos clave (los más importantes del JD)
    - Equipo/división si se menciona
-4. Lee `config/profile.yml` → proof points, superpowers, exit story
-5. Lee `modes/_profile.md` → adaptive framing para el arquetipo detectado
-6. Genera el contenido del Anschreiben siguiendo esta estructura:
+3. Leer el master DOCX vía `python-docx` para conocer la estructura actual de párrafos (mantenerla intacta — solo se reescribe el texto de los runs)
+4. Leer `config/profile.yml` → proof points, superpowers, exit story
+5. Leer `modes/_profile.md` → adaptive framing para el arquetipo detectado
+6. Validar métricas leyendo el DOCX CV master correspondiente (no inventar nada que no exista ahí)
+7. Copiar el master DOCX a `output/{REF}-coverletter.docx` (donde `{REF}` viene de `node lib/ref-code.mjs generate "{company}" "{role}"`)
+8. Editar el copy de `output/{REF}-coverletter.docx` con `python-docx`:
+   - Swap del destinatario (empresa, equipo, ciudad, fecha)
+   - Reescribir los párrafos del cuerpo (estructura abajo) reemplazando el texto de los runs existentes — **no insertar ni borrar párrafos**, no tocar foto, firma, fuentes, márgenes, espaciado ni tablas
+9. Convertir a PDF: `soffice --headless --convert-to pdf --outdir output output/{REF}-coverletter.docx`
+10. Output final: `output/{REF}-coverletter.pdf`
+11. Reportar: ruta del PDF, código de referencia, idioma
 
-### Estructura del Anschreiben (5 bloques)
+## Estructura del cuerpo (5 bloques)
+
+El master DOCX ya contiene un esqueleto de cinco bloques. Reescribir el texto de cada bloque manteniendo párrafo-por-párrafo el mapeo:
 
 **Bloque 1 — Gancho de apertura (1-2 frases)**
-- Reescribir el gancho del master adaptado a ESTA empresa
-- Debe ser memorable, concreto, y establecer tu identidad inmediatamente
-- Referencia: en el master es "bei IONOS schätzte man mich als den 'AI guy'..." — adaptar al contexto del nuevo JD
-- NO usar frases genéricas ("Hiermit bewerbe ich mich...", "Mit großem Interesse...")
+- Adaptar el gancho a ESTA empresa
+- Memorable, concreto, establece identidad inmediatamente
+- Referencia (DE): "bei IONOS schätzte man mich als den 'AI guy'..." — adaptar al contexto del nuevo JD
+- NO usar genéricos ("Hiermit bewerbe ich mich...", "Mit großem Interesse...")
 
 **Bloque 2 — Transición al matching (1 frase)**
-- Conectar el gancho con el mapeo de requisitos
-- Referencia: en el master es "Damit ich nicht nur behaupte... habe ich Ihre Anforderungen direkt mit meinen Erfahrungen abgeglichen"
+- Puente entre el gancho y el mapeo de requisitos
+- Referencia (DE): "Damit ich nicht nur behaupte... habe ich Ihre Anforderungen direkt mit meinen Erfahrungen abgeglichen"
 
 **Bloque 3 — Mapeo requisito → proof point (3 bullets)**
 - Cada bullet empieza con **"Sie suchen/fordern/brauchen [requisito del JD]:"** (en negrita)
 - Seguido de tu experiencia concreta que mapea a ese requisito
-- Usar métricas reales de `config/profile.yml` proof_points (81% recall, 30% QA reduction, etc.)
-- Referencia: en el master los 3 bullets mapean LLMs/Vector DBs, Python/FastAPI, DevSecOps
-- NUNCA inventar métricas o experiencia que no exista en cv.md / cv.de.md
+- Usar métricas reales del DOCX CV master + `config/profile.yml` proof_points
+- NUNCA inventar métricas o experiencia que no exista en los DOCX masters
 
 **Bloque 4 — Motivación + Win-Win (2-3 frases)**
 - Por qué esta empresa específicamente (investigar brevemente si es necesario)
 - Framing "Win-Win": ellos obtienen X expertise, tú obtienes Y crecimiento
-- Referencia: en el master es "Das ist eine Win-Win-Lösung: Sie erhalten... und ich kann..."
 
 **Bloque 5 — Cierre (1-2 frases)**
 - Cierre confiado pero no arrogante
-- Referencia: en el master es "Ich bin zuversichtlich, dass Sie das Gesicht dazu kennenlernen möchten"
 - Si JD en alemán: "Mit freundlichen Grüßen,"
 - Si JD en inglés: "Best regards,"
 
-### Reglas de tono
+## Reglas de tono
 
-- **Voz del master:** Leer el master cover letter y MANTENER el mismo nivel de confianza, directness, y personalidad. El candidato tiene una voz fuerte — no la diluyas.
-- **Formal pero no rígido:** En alemán, usar "Sie" siempre. Pero permitir expresiones directas ("Builder-Mentalität", "Win-Win-Lösung").
+- **Voz del master:** Leer el master cover letter DOCX y MANTENER el mismo nivel de confianza, directness, y personalidad. No diluir.
+- **Formal pero no rígido:** En alemán, usar "Sie" siempre. Permitir expresiones directas ("Builder-Mentalität", "Win-Win-Lösung").
 - **Concreto > genérico:** Cada frase debe tener un dato específico (nombre de proyecto, métrica, tecnología). Sin relleno.
 - **1 página máximo.** Si el contenido es demasiado largo, cortar el bloque 4 primero, luego reducir a 2 bullets en bloque 3.
 
-## Generación del PDF
+## Edición DOCX — qué tocar y qué NO
 
-7. Lee `templates/cover-letter-template.html`
-8. Obtén datos de contacto de `config/profile.yml`:
-   - `{{NAME}}` = `candidate.full_name`
-   - `{{EMAIL}}` = `candidate.email`
-   - `{{PHONE}}` = `candidate.phone`
-   - `{{LINKEDIN_URL}}` = `https://www.linkedin.com/in/` + linkedin handle
-   - `{{LINKEDIN_DISPLAY}}` = linkedin handle
-   - `{{PORTFOLIO_URL}}` = `candidate.portfolio_url`
-   - `{{PORTFOLIO_DISPLAY}}` = portfolio domain
-   - `{{LOCATION}}` = `candidate.location`
-   - `{{LOCATION_SENDER}}` = ciudad del candidato (ej: "Leonberg")
-9. Rellena campos del template:
-   - `{{LANG}}` = `de` o `en`
-   - `{{COMPANY_NAME}}` = nombre de la empresa
-   - `{{COMPANY_TEAM}}` = "Recruiting Team" o equipo específico del JD
-   - `{{COMPANY_CITY}}` = ciudad de la empresa
-   - `{{DATE}}` = fecha actual en formato local (DE: "12. April 2026", EN: "April 12, 2026")
-   - `{{SUBJECT}}` = "Bewerbung als {rol}" (DE) o "Application for {rol}" (EN)
-   - `{{SALUTATION}}` = "Sehr geehrte Damen und Herren," (DE) o "Dear Hiring Team," (EN)
-   - `{{BODY}}` = bloques 1-4 como HTML (`<p>` para párrafos, `<ul><li>` para bullets)
-   - `{{REGARDS}}` = "Mit freundlichen Grüßen," (DE) o "Best regards," (EN)
-10. Escribe HTML a `/tmp/anschreiben-{REF}.html`
-    - `{REF}` = código de referencia de `lib/ref-code.mjs`
-11. Ejecuta:
-    ```bash
-    node generate-pdf.mjs /tmp/anschreiben-{REF}.html output/{Candidate_Name}_Anschreiben_{REF}.pdf --format=a4
-    ```
-    (o `{Candidate_Name}_CoverLetter_{REF}.pdf` si JD en inglés)
-    `{Candidate_Name}` = `candidate.full_name` con espacios → underscores
-12. Reporta: ruta del PDF, código de referencia, idioma
+**Editable (vía `python-docx`, reemplazando texto de runs en su lugar):**
+- Línea de destinatario: empresa, equipo, dirección, ciudad
+- Fecha
+- Línea de asunto / Subject ("Bewerbung als {rol}" DE / "Application for {rol}" EN)
+- Saludo ("Sehr geehrte Damen und Herren," DE / "Dear Hiring Team," EN)
+- Cuerpo: bloques 1-5
+- Sign-off ("Mit freundlichen Grüßen," DE / "Best regards," EN)
+
+**Intocable:**
+- Foto, firma, anchors de imágenes
+- Fuentes, tamaños, colores, negritas, cursivas (mantener formato de cada run)
+- Estructura de párrafos / número de párrafos del cuerpo
+- Tablas, márgenes, espaciado, headers/footers
+- Hyperlinks pre-existentes (LinkedIn, portfolio, etc.)
+
+Si necesitás un párrafo más o menos del que tiene el master, ajustar la cantidad de líneas dentro del párrafo existente — no insertar/borrar nodos `<w:p>`.
 
 ## Checklist final
 
+- [ ] Master DOCX correcto seleccionado por idioma del JD
+- [ ] `output/{REF}-coverletter.docx` creado, formato/foto/firma intactos
 - [ ] Voz del master preservada (no genérica)
 - [ ] Exactamente 3 bullets en bloque 3 (mapeo requisito → proof point)
-- [ ] Métricas reales (no inventadas)
+- [ ] Métricas reales del DOCX CV master / `article-digest.md` (no inventadas)
 - [ ] 1 página (no más)
-- [ ] Mismo diseño visual que el CV (fonts, colores, header)
-- [ ] Nombre de empresa y rol correctos en subject line
-- [ ] Código de referencia ({REF}) en el nombre del archivo
-- [ ] PDF generado con `--format=a4`
+- [ ] Nombre de empresa, rol, asunto y saludo correctos
+- [ ] Código de referencia ({REF}) en el nombre del PDF
+- [ ] PDF generado vía `soffice --headless --convert-to pdf` en `output/{REF}-coverletter.pdf`

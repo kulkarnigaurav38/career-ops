@@ -54,10 +54,4 @@ Traite les URLs d'offres accumulees dans `data/pipeline.md`. Le candidat ajoute 
 
 ## Synchronisation des sources
 
-Avant de traiter une URL, verifier la sync :
-
-```bash
-node cv-sync-check.mjs
-```
-
-En cas de desynchronisation, alerter le candidat avant de continuer.
+Les masters DOCX dans `templates/cv/` sont la seule source de verite pour le CV et la lettre de motivation. Pas d'etape de sync separee — les modifications se font via `python-docx` directement sur les copies dans `output/`.

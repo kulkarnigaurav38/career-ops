@@ -22,7 +22,7 @@ Tabela com:
 
 ## Bloco B -- Match com o Curriculo
 
-Ler `cv.md`. Criar tabela com cada requisito do JD mapeado para linhas exatas do curriculo.
+Ler os masters DOCX (`templates/cv/CV_Gaurav_Kulkarni_EN.docx` ou `Lebenslauf_Gaurav_Kulkarni_DE.docx`) via `python-docx`. Criar tabela com cada requisito do JD mapeado para linhas exatas do curriculo.
 
 **Adaptado ao arquetipo:**
 - Se FDE → priorizar proof points de entrega rapida e proximidade com cliente

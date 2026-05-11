@@ -56,7 +56,7 @@ Identificar TODAS as perguntas visiveis:
 
 Classificar cada pergunta:
 - **Ja respondida no Bloco G** → adaptar a resposta existente
-- **Pergunta nova** → gerar resposta a partir do report + `cv.md`
+- **Pergunta nova** → gerar resposta a partir do report + masters DOCX em `templates/cv/` (via `python-docx`)
 
 ## Passo 5 -- Gerar respostas
 

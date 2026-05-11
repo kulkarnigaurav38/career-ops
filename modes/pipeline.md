@@ -50,8 +50,4 @@ Procesa URLs de ofertas acumuladas en `data/pipeline.md`. El usuario agrega URLs
 
 ## Sincronización de fuentes
 
-Antes de procesar cualquier URL, verificar sync:
-```bash
-node cv-sync-check.mjs
-```
-Si hay desincronización, advertir al usuario antes de continuar.
+Los DOCX masters en `templates/cv/` son la única fuente de verdad para el CV y el cover letter. No hay paso de sincronización separado — las modificaciones se hacen vía `python-docx` directamente sobre las copias en `output/`.
