@@ -249,6 +249,8 @@ CV and cover letter masters are Word documents in `templates/cv/`. Per job: copy
 - English JD → use the EN master (CV + cover letter)
 - NEVER mix languages. The CV and cover letter language MUST match the JD language.
 
+**DE/EN parity rule:** The DE and EN CV masters carry the same content in two languages. Whenever the user edits one master (adds/removes a section, changes a bullet, drops a tech keyword, renames an award, etc.), mirror the same change in the other master so the two stay structurally and semantically in sync. Headers translate (e.g. `SCHLÜSSELKOMPETENZEN` ↔ `CORE COMPETENCIES`, `SOZIALKOMPETENZEN` ↔ `INTERPERSONAL SKILLS`); bullet content stays equivalent. After mirroring, re-read both masters with `python-docx` to confirm parity.
+
 **Per-job workflow (CV):**
 1. Copy the appropriate DE or EN master to `output/{ref}-cv.docx`
 2. Tailor **only the content**, using `python-docx` or pandoc roundtrip. Formatting, photo, signature, bullet order, bolding, tables, and spacing stay frozen. Editable surfaces:
