@@ -1,0 +1,61 @@
+# ── Personal data — never commit ─────────────────────────────
+# Your CV / cover-letter masters (drop your own .docx into templates/cv/)
+templates/cv/*.docx
+templates/cv/build/
+templates/cv/archive/
+
+# Your applications, evaluations, JD captures, generated PDFs
+data/applications.md
+data/pipeline.md
+data/scan-history.tsv
+data/ref-map.tsv
+data/browser-state/
+data/apply-log/
+reports/*.md
+!reports/.gitkeep
+jds/*
+!jds/.gitkeep
+output/*
+!output/.gitkeep
+interview-prep/*
+!interview-prep/.gitkeep
+tailoring/
+
+# Your config (copy the .example / .template versions and fill in)
+config/profile.yml
+config/application-answers.md
+modes/_profile.md
+portals.yml
+
+# Personal documents (passport, permits, certs, etc.)
+Job Application Documents*/
+
+# ── Batch artifacts ──────────────────────────────────────────
+batch/batch-state.tsv
+batch/batch-input.tsv
+batch/tracker-additions/*.tsv
+!batch/tracker-additions/.gitkeep
+batch/tracker-additions/merged/
+batch/logs/*
+!batch/logs/.gitkeep
+batch/skipped-*.tsv
+batch/tmp/
+
+# ── Local state / build ──────────────────────────────────────
+.update-dismissed
+.update-lock
+.resolved-prompt-*
+node_modules/
+.venv/
+.playwright-mcp/
+career-dashboard
+package-lock.json
+
+# Claude Code / editor local
+.claude/settings.local.json
+.claude/memory/
+
+# OS
+.DS_Store
+*.mov
+*.mp4
