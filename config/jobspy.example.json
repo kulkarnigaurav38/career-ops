@@ -1,0 +1,39 @@
+{
+  "_comment": "Search matrix for lib/jobspy_scan.py. Each entry is one scrape run. Keep terms narrow — one axis per entry — because LinkedIn rate-limits around page 10 from a single IP.",
+  "defaults": {
+    "sites": [
+      "linkedin",
+      "indeed"
+    ],
+    "country_indeed": "germany",
+    "results_wanted": 25,
+    "hours_old": 72,
+    "linkedin_fetch_description": false
+  },
+  "searches": [
+    {
+      "term": "Software Engineer",
+      "location": "Berlin, Germany"
+    },
+    {
+      "term": "Backend Developer",
+      "location": "Munich, Germany"
+    },
+    {
+      "term": "Software Engineer",
+      "location": "Germany",
+      "is_remote": true
+    }
+  ],
+  "exclude_title_keywords": [
+    "Praktikum",
+    "Werkstudent",
+    "Ausbildung",
+    "Intern",
+    "Thesis",
+    "Abschlussarbeit",
+    "Vertrieb",
+    "Sales",
+    "Recruiter"
+  ]
+}

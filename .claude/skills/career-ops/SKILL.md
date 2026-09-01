@@ -1,93 +1,38 @@
 ---
 name: career-ops
-description: AI job search command center -- evaluate offers, generate CVs, scan portals, track applications
+description: Turn job links into tailored CV + cover letter PDFs; outreach and interview prep
 user_invocable: true
 args: mode
-argument-hint: "[scan | deep | pdf | oferta | ofertas | apply | batch | tracker | pipeline | contacto | training | project | interview-prep | update]"
+argument-hint: "[<job url(s)> | apply | outreach | interview-prep | interview-stories]"
 ---
 
-# career-ops -- Router
+# career-ops
 
-## Mode Routing
+## Routing
 
-Determine the mode from `{{mode}}`:
+| Input | Do this |
+|---|---|
+| One or more job URLs, or pasted JD text | **Run the pipeline in `CLAUDE.md` §1.** This is the default and the main job. |
+| `apply` | `modes/apply.md` — fill a live form, stop before submit |
+| `outreach` | `modes/outreach.md` — recruiter messages for applications sent **today** only |
+| `interview-prep` | `modes/interview-prep.md` — company research + process intel |
+| `interview-stories` | `modes/interview-stories.md` — requirement→story prep from a JD + its CV |
+| anything else | Treat as a JD if it looks like one; otherwise show this table |
 
-| Input | Mode |
-|-------|------|
-| (empty / no args) | `discovery` -- Show command menu |
-| JD text or URL (no sub-command) | **`auto-pipeline`** |
-| `oferta` | `oferta` |
-| `ofertas` | `ofertas` |
-| `contacto` | `contacto` |
-| `deep` | `deep` |
-| `pdf` | `pdf` |
-| `training` | `training` |
-| `project` | `project` |
-| `tracker` | `tracker` |
-| `pipeline` | `pipeline` |
-| `apply` | `apply` |
-| `scan` | `scan` |
-| `batch` | `batch` |
-| `patterns` | `patterns` |
+## Pipeline in one line
 
-**Auto-pipeline detection:** If `{{mode}}` is not a known sub-command AND contains JD text (keywords: "responsibilities", "requirements", "qualifications", "about the role", "we're looking for", company name + role) or a URL to a JD, execute `auto-pipeline`.
+capture JD verbatim → dedup → ref code → tailor CV + cover letter per JD → render PDFs →
+verify (incl. `python3 lib/grounding_check.py {REF}`) → report + tracker row → **stop before submitting**.
 
-If `{{mode}}` is not a sub-command AND doesn't look like a JD, show discovery.
+**Several links → one subagent per application, in parallel**, then a separate audit agent over the
+batch. Each agent gets only its own `{NNN}`, `{REF}` and JD path, and must not touch other
+applications or the masters.
 
----
+## Non-negotiables
 
-## Discovery Mode (no arguments)
+- **Grounding law** (`CLAUDE.md` §2): nothing may appear that isn't in the DOCX masters. No
+  invented duties, tools or metrics. Run `npm run grounding` before calling anything done.
+- **NO-SKIP:** every link gets a full application; a bad fit gets an honest low score, not a skip.
+- Never submit a form, never send an email, never click Send on LinkedIn.
 
-Show this menu:
-
-```
-career-ops -- Command Center
-
-Available commands:
-  /career-ops {JD}      → AUTO-PIPELINE: evaluate + report + PDF + tracker (paste text or URL)
-  /career-ops pipeline  → Process pending URLs from inbox (data/pipeline.md)
-  /career-ops oferta    → Evaluation only A-F (no auto PDF)
-  /career-ops ofertas   → Compare and rank multiple offers
-  /career-ops contacto  → LinkedIn power move: find contacts + draft message
-  /career-ops deep      → Deep research prompt about company
-  /career-ops pdf       → PDF only, ATS-optimized CV
-  /career-ops training  → Evaluate course/cert against North Star
-  /career-ops project   → Evaluate portfolio project idea
-  /career-ops tracker   → Application status overview
-  /career-ops apply     → Live application assistant (reads form + generates answers)
-  /career-ops scan      → Scan portals and discover new offers
-  /career-ops batch     → Batch processing with parallel workers
-  /career-ops patterns  → Analyze rejection patterns and improve targeting
-
-Inbox: add URLs to data/pipeline.md → /career-ops pipeline
-Or paste a JD directly to run the full pipeline.
-```
-
----
-
-## Context Loading by Mode
-
-After determining the mode, load the necessary files before executing:
-
-### Modes that require `_shared.md` + their mode file:
-Read `modes/_shared.md` + `modes/{mode}.md`
-
-Applies to: `auto-pipeline`, `oferta`, `ofertas`, `pdf`, `contacto`, `apply`, `pipeline`, `scan`, `batch`
-
-### Standalone modes (only their mode file):
-Read `modes/{mode}.md`
-
-Applies to: `tracker`, `deep`, `training`, `project`, `patterns`
-
-### Modes delegated to subagent:
-For `scan`, `apply` (with Playwright), and `pipeline` (3+ URLs): launch as Agent with the content of `_shared.md` + `modes/{mode}.md` injected into the subagent prompt.
-
-```
-Agent(
-  subagent_type="general-purpose",
-  prompt="[content of modes/_shared.md]\n\n[content of modes/{mode}.md]\n\n[invocation-specific data]",
-  description="career-ops {mode}"
-)
-```
-
-Execute the instructions from the loaded mode file.
+Read `CLAUDE.md` first — it holds the full tailoring rules, verification battery and platform notes.

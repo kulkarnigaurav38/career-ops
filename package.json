@@ -3,17 +3,24 @@
   "version": "1.0.0",
   "description": "AI-powered job search pipeline built on Claude Code",
   "scripts": {
-    "doctor": "node doctor.mjs",
     "verify": "node verify-pipeline.mjs",
     "normalize": "node normalize-statuses.mjs",
     "dedup": "node dedup-tracker.mjs",
-    "merge": "node merge-tracker.mjs",
-    "update:check": "node update-system.mjs check",
-    "update": "node update-system.mjs apply",
-    "rollback": "node update-system.mjs rollback",
-    "liveness": "node check-liveness.mjs"
+    "grounding": "python3 lib/grounding_check.py --all",
+    "outreach:due": "node outreach-due.mjs",
+    "applied": "node applied-log.mjs today",
+    "applied:log": "node applied-log.mjs add",
+    "outreach:week": "node outreach-due.mjs --week --all",
+    "scan:jobs": "python3.12 lib/jobspy_scan.py",
+    "scan:jobs:dry": "python3.12 lib/jobspy_scan.py --dry-run"
   },
-  "keywords": ["ai", "job-search", "claude-code", "career", "automation"],
+  "keywords": [
+    "ai",
+    "job-search",
+    "claude-code",
+    "career",
+    "automation"
+  ],
   "author": "Santiago Fernández de Valderrama <hi@santifer.io> (https://santifer.io)",
   "homepage": "https://santifer.io",
   "repository": {
@@ -23,5 +30,8 @@
   "license": "MIT",
   "dependencies": {
     "playwright": "^1.58.1"
+  },
+  "devDependencies": {
+    "docx": "^9.7.1"
   }
 }

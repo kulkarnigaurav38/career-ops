@@ -18,6 +18,19 @@ batch/skipped-*.tsv
 jds/*
 !jds/.gitkeep
 
+# Outreach — contains third parties' names/profiles, same privacy class as reports/
+data/outreach.md
+data/recruiters.tsv
+data/applied-log.tsv
+outreach/*
+!outreach/.gitkeep
+emails/*
+!emails/.gitkeep
+
+# Personal documents (passport, permits, certs) + personal answer-sheet — never commit
+Job Application Documents*/
+config/application-answers.md
+
 # User config and customization (never auto-updated)
 config/profile.yml
 portals.yml
@@ -31,6 +44,7 @@ data/apply-log/
 
 # Generated
 .resolved-prompt-*
+tailoring/
 node_modules/
 .venv/
 .playwright-mcp/
@@ -46,3 +60,18 @@ data/ref-map.tsv
 .claude/memory/
 career-dashboard
 package-lock.json
+
+# Personal profile and documents — the repo ships tooling, not one person's data
+CLAUDE.md
+config/owner.json
+config/jobspy.json
+config/portfolio.md
+config/skills.md
+interview-prep/*
+!interview-prep/.gitkeep
+templates/cv/*
+!templates/cv/.gitkeep
+tailoring/
+
+# Word/LibreOffice lock files
+~$*

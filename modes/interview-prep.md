@@ -103,6 +103,8 @@ Based on what the company actually tests, not generic advice:
 
 Prioritize by frequency and relevance to the role. Max 10 items.
 
+**For German Java/Spring/backend roles, always include the field-confirmed always-asked topics** from `interview-prep/germany-swe-core-topics.md` (HashMap internals/collisions, `@RestController` vs `@Controller` + Spring annotations, Collections incl. linked vs doubly-linked list, microservice communication + Kafka) — these recurred in every one of the candidate's 6 DE interviews, so they outrank generic suggestions. Reference the sheet, don't re-paste it.
+
 ## Step 7 — Company Signals
 
 Things to say, do, and avoid based on research:

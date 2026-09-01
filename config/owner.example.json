@@ -1,0 +1,26 @@
+{
+  "name": "Your Name",
+  "city": "Your City",
+  "email_handle": "yourhandle",
+  "masters": {
+    "DE": {
+      "cv": "templates/cv/CV_DE.docx",
+      "cover_letter": "templates/cv/CoverLetter_DE.docx"
+    },
+    "EN": {
+      "cv": "templates/cv/CV_EN.docx",
+      "cover_letter": "templates/cv/CoverLetter_EN.docx"
+    }
+  },
+  "cv": {
+    "experience_entries": {
+      "current": "Current Employer GmbH",
+      "previous": "Previous Employer Ltd"
+    },
+    "reorderable_entries": [
+      "current",
+      "previous"
+    ],
+    "wildcard_project": "Project Name"
+  }
+}
