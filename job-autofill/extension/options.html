@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <style>
+    body { font-family: system-ui, "Segoe UI", Arial; max-width: 640px; margin: 24px auto; color: #1a1a1a; padding: 0 12px; }
+    h1 { color: #1F4E5F; font-size: 18px; }
+    textarea { width: 100%; height: 420px; font-family: ui-monospace, Menlo, monospace; font-size: 12px; box-sizing: border-box; }
+    button { background: #1F4E5F; color: #fff; border: 0; border-radius: 6px; padding: 8px 14px; cursor: pointer; margin-right: 6px; }
+    button.sec { background: #e8eef0; color: #1F4E5F; }
+    button.danger { background: #b3261e; color: #fff; }
+    button.small { font-size: 11px; padding: 4px 9px; margin-right: 4px; }
+    #msg { font-size: 12px; margin-left: 8px; }
+    code { background: #eef; padding: 1px 4px; border-radius: 3px; }
+    [hidden] { display: none !important; }
+
+    /* ---- Gelernte Antworten ---- */
+    .sep { border: 0; border-top: 1px solid #dfe6e9; margin: 28px 0 20px; }
+    .lmBar { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin: 10px 0; }
+    .lmBar input { flex: 1 1 220px; min-width: 180px; font-size: 12px; padding: 7px 8px; border: 1px solid #ccc; border-radius: 6px; }
+    .lmConfirm { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 12px;
+                 background: #fdecea; border-left: 3px solid #b3261e; border-radius: 4px; padding: 8px 10px; margin-bottom: 10px; }
+    #lmMeta { font-size: 12px; margin: 8px 0; }
+    .lmCount { color: #555; margin-bottom: 6px; }
+    .lmWarn { background: #fdecea; border-left: 3px solid #b3261e; border-radius: 4px; padding: 8px 10px; line-height: 1.45; }
+    .lmHost { border: 1px solid #e2e8ea; border-radius: 7px; margin-bottom: 12px; overflow: hidden; }
+    .lmHostHead { display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+                  background: #eef3f4; padding: 7px 10px; border-bottom: 1px solid #e2e8ea; }
+    .lmHostName { font-weight: 600; color: #1F4E5F; font-size: 13px; word-break: break-all; }
+    .lmHostCount { font-size: 11px; color: #666; flex: 1 1 auto; }
+    .lmEntry { border-top: 1px solid #f0f3f4; padding: 7px 10px; }
+    .lmEntry:first-child { border-top: 0; }
+    .lmLbl { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: 11px; color: #333; margin-bottom: 4px; }
+    .lmLabelText { font-weight: 600; word-break: break-word; }
+    .lmTs { color: #888; font-size: 10px; }
+    .src { font-size: 9px; border-radius: 3px; padding: 1px 5px; color: #fff; white-space: nowrap; }
+    .src.korr { background: #3f8f5f; }
+    .src.legacy { background: #b3261e; }
+    .src.other { background: #6a52c9; }
+    .lmRow { display: flex; align-items: center; gap: 6px; }
+    .lmRow input.val { flex: 1 1 auto; box-sizing: border-box; font-size: 12px; padding: 5px 6px; border: 1px solid #ccc; border-radius: 4px; }
+    .lmEmpty { font-size: 12px; color: #666; padding: 10px 2px; }
+    #lmMsg { font-size: 12px; color: #1F4E5F; min-height: 16px; }
+  </style>
+</head>
+<body>
+  <h1>Profil — Autofill-Daten</h1>
+  <p>Vorbefüllt aus <b>career-ops</b> <code>config/application-answers.md</code>. Die KI füllt Freitext aus
+     <code>bio</code>/<code>motivationDefault</code>, Jahre-Erfahrung aus <code>yearsOfExperience</code>,
+     Consent aus <code>privacyConsent</code>/<code>marketing</code>. Erfindet nichts, was hier nicht steht.</p>
+  <textarea id="p"></textarea>
+  <p><button id="save">Speichern</button><button id="reset" class="sec">Standard laden</button><span id="msg"></span></p>
+
+  <hr class="sep" />
+
+  <h1>Gelernte Antworten</h1>
+  <p>Beim „Ausfüllen" merkt sich die Erweiterung <code>(Portal-Host, Feld-Label) → Wert</code> und spielt ihn beim
+     nächsten Besuch desselben Portals automatisch wieder ein (Quelle „Gelernt", überschreibt die Regeln).
+     Ein einmal falsch gelernter Wert wiederholt sich dadurch bei jeder Bewerbung. Hier kannst du ihn korrigieren
+     oder löschen.</p>
+
+  <div id="lmMeta"></div>
+
+  <div class="lmBar">
+    <input id="lmFilter" type="search" placeholder="Filtern: Portal, Label oder Wert …" />
+    <button id="lmReload" class="sec">Neu laden</button>
+    <button id="lmClearAll" class="danger">Alle gelernten Werte löschen</button>
+  </div>
+
+  <div id="lmClearConfirm" class="lmConfirm" hidden>
+    <span>Wirklich <b>alle</b> gelernten Werte aller Portale löschen? Das lässt sich nicht rückgängig machen.</span>
+    <button id="lmClearYes" class="danger">Ja, alles löschen</button>
+    <button id="lmClearNo" class="sec">Abbrechen</button>
+  </div>
+
+  <div id="lmList"></div>
+  <p id="lmMsg"></p>
+
+  <script src="options.js"></script>
+</body>
+</html>

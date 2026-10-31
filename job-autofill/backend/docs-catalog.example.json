@@ -1,0 +1,20 @@
+{
+  "cv":               { "label": "Lebenslauf / CV",            "perRef": ["{REF}_LEBENSLAUF.pdf", "{REF}_CV.pdf"],            "as": "Lebenslauf_Max_Mustermann.pdf" },
+  "coverletter":      { "label": "Anschreiben / Cover letter", "perRef": ["{REF}_ANSCHREIBEN.pdf", "{REF}_COVER_LETTER.pdf"], "as": "Anschreiben_Max_Mustermann.pdf" },
+
+  "zertifikate":      { "label": "Kombinierte Zertifikate",    "files": ["Zertifikate_compressed.pdf", "Zertifikate.pdf"],    "as": "Zertifikate_Max_Mustermann.pdf" },
+  "deutschB2":        { "label": "Deutsch B2",                 "files": ["Deutsch_B2_compressed.pdf", "Deutsch_B2.pdf"],      "as": "Deutsch_B2_Max_Mustermann.pdf" },
+  "endzeugnis":       { "label": "Arbeitszeugnis (letzter Arbeitgeber)", "files": ["Arbeitszeugnis.pdf"],                     "as": "Arbeitszeugnis_Max_Mustermann.pdf" },
+
+  "deutsch":          { "label": "Deutsch B1",                 "files": ["Deutsch_B1_Zertifikat.pdf"],   "as": "Deutsch_B1_Max_Mustermann.pdf" },
+  "awsCert":          { "label": "Cloud-Zertifikat",           "files": ["cloud-zertifikat.png"],        "as": "Cloud_Zertifikat.png" },
+  "degree":           { "label": "Bachelor-Zeugnis + Transcripts", "files": ["Bachelor_Zeugnis.pdf"],    "as": "Bachelor_Zeugnis_Max_Mustermann.pdf" },
+  "transcripts":      { "label": "Studium Transcripts",        "files": ["Studium_Transcripts.pdf"],     "as": "Transcripts_Max_Mustermann.pdf" },
+  "masterNoten":      { "label": "Master Notenübersicht",      "files": ["Master_Notenuebersicht.pdf"],  "as": "Master_Noten_Max_Mustermann.pdf" },
+  "abschluss":        { "label": "Abschlussbestätigung M.Sc.", "files": ["Abschlussbestaetigung.pdf"],   "as": "Abschlussbestaetigung_Max_Mustermann.pdf" },
+  "arbeitserlaubnis": { "label": "Arbeitserlaubnis / Titel",   "files": ["Arbeitserlaubnis.pdf"],        "as": "Arbeitserlaubnis_Max_Mustermann.pdf" },
+  "passport":         { "label": "Reisepass",                  "files": ["Reisepass.pdf"],               "as": "Reisepass_Max_Mustermann.pdf" },
+  "workCombined":     { "label": "Arbeitszeugnisse gesammelt", "files": ["Arbeitszeugnisse.pdf"],        "as": "Arbeitszeugnisse_Max_Mustermann.pdf" },
+  "kurse":            { "label": "Kurse & Weiterbildungen",    "files": ["Weiterbildungen.pdf"],         "as": "Weiterbildungen_Max_Mustermann.pdf" },
+  "photo":            { "label": "Bewerbungsfoto",             "files": ["foto.png", "foto.jpg"],        "as": "Foto_Max_Mustermann.png" }
+}

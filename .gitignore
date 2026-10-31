@@ -75,3 +75,6 @@ tailoring/
 
 # Word/LibreOffice lock files
 ~$*
+
+# Scan dumps (third-party job/recruiter data)
+data/scans/

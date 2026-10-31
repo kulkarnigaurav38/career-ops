@@ -90,7 +90,7 @@ def extract(text: str) -> dict:
     emails = [e for e in re.findall(r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}", body)
               if _OWN_HANDLE not in e.lower()]
 
-    # A personal mailbox IS a named contact: lena.riexinger@trumpf.com -> Lena Riexinger.
+    # A personal mailbox IS a named contact: max.mustermann@example.com -> Max Mustermann.
     # Without this the script reports "email only" and the real name is lost.
     if not best:
         for e in emails:

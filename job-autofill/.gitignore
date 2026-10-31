@@ -1,0 +1,27 @@
+# ---- Secrets & personal data (never commit) ----
+.env
+.env.local
+*.local.json
+*.local.js
+
+# Real applicant profile / document catalog (see the .example files)
+extension/profile.local.json
+backend/docs-catalog.local.json
+
+# ---- Dependencies ----
+node_modules/
+npm-debug.log*
+yarn-error.log*
+
+# ---- Build / editor / OS ----
+dist/
+build/
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# ---- Applicant documents (PDFs, photos, certificates) ----
+*.pdf
+photo.png
+output/

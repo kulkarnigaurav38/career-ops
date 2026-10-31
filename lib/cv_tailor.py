@@ -5,13 +5,13 @@ Centralizes the error-prone python-docx surgery so content authoring stays decla
 Run structure it relies on (verified against the 2026-07 masters, 82 paras):
 
 CV  indices are resolved at runtime by _locate() - never hardcode them again.
-    P[1]=tagline(run0) · P[7]=profile(runs 0,2,4,6 normal / 1,3,5 FIXED bold anchors)
+    P[1]=FIXED title (never tailored) · no PROFIL section (removed 2026-09; header line is the summary)
     P[47]=Programmierung(run0 label · run1 bold-lead · run2 normal-rest)
     P[51]=Backend&Web(same 3-run shape)
     P[63]=wildcard-project title (run0 = TRAILING run after the <w:hyperlink>; suffix only)
     P[64],P[65]=wildcard bullets(run0) · P[66]=closing(run0) · P[67]=Stack(run0 label · run1 content)
     P[81]=signature(run0)
-CL  tableT0 r0c0p0=company · r0c0p1=contact line · r0c1p0='<city>, DATE' · P[1]=tagline
+CL  tableT0 r0c0p0=company · r0c0p1=contact line · r0c1p0='<city>, DATE' · P[1]=FIXED title (never tailored)
     Body slots are resolved from the salutation, never hardcoded (see _locate_cl):
     subject · salutation · [tldr - EN only] · opening · record(FIXED) · match · close
     'match' carries every JD requirement in one paragraph, with the JD's skills bold:
@@ -19,14 +19,15 @@ CL  tableT0 r0c0p0=company · r0c0p1=contact line · r0c1p0='<city>, DATE' · P[
 
 spec = {
   ref, lang: 'DE'|'EN',
-  cv: { tagline, profile:[n0,n2,n4,n6], prog_bold, prog_normal, backend_bold, backend_normal,
+  cv: { prog_bold, prog_normal, backend_bold, backend_normal,
         lk_suffix, lk_b1, lk_b2, lk_closing, lk_stack, sig_month },
-  cl: { company, date, tagline, subject, opening, match, close,
+  cl: { company, date, subject, opening, match, close,
         contact?, salutation?, tldr?, record? },   # ? = optional override
 }
 """
 import os, shutil, sys, json
 from docx import Document
+from docx.oxml.ns import qn
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import owner_config
@@ -125,8 +126,9 @@ def _locate(P):
         txt = (P[i].text or "").strip()
         if ":" in txt:
             ix["skill_rows"][txt.split(":", 1)[0].strip().lower()] = i
-    for key, names in (("prog", ("programmierung", "programming")),
-                       ("backend", ("backend", "backend & web"))):
+    for key, names in (("prog", ("programmiersprachen", "programming languages",
+                                 "programmierung", "programming")),
+                       ("backend", ("backend & web", "backend"))):
         for n in names:
             if n in ix["skill_rows"]:
                 ix[key] = ix["skill_rows"][n]; break
@@ -155,20 +157,29 @@ def _locate(P):
 def apply_cv(doc, cv):
     P = doc.paragraphs
     ix = _locate(P)
-    # tagline
-    P[1].runs[0].text = cv["tagline"]; _blank_extra(P[1], 1)
-    # profile: keep FIXED bold anchors at runs 1,3,5; rewrite normal connectors 0,2,4,6
-    n = cv["profile"]
-    assert len(n) == 4, "profile needs [n0,n2,n4,n6]"
-    for slot, val in zip((0, 2, 4, 6), n):
-        P[7].runs[slot].text = val
+    # tagline: FIXED in the master, never per application (see CLAUDE.md §4).
+    # A spec that tries to set one is a bug from the old per-JD logic - fail loudly.
+    if "tagline" in cv:
+        raise RuntimeError("cv_tailor: cv['tagline'] is no longer tailored per application. "
+                           "The title under the name is fixed in the master - drop the key.")
+    # profile: the PROFIL section was removed in the 2026-09 AI-first restructure.
+    # The one-line summary under the name is the only summary and is FIXED in the master.
+    if "profile" in cv:
+        raise RuntimeError("cv_tailor: cv['profile'] is gone - the masters no longer have a "
+                           "PROFIL section. The header line is the only summary; drop the key.")
     # skills rows: run0 label untouched; run1 bold JD-lead; run2 normal rest.
     # cv["skills"] = {"<label>": [bold_lead, normal_rest]} reaches ANY row by its label;
     # prog_*/backend_* stay supported for the two rows every JD touches.
     def _row(idx, bold_lead, normal_rest):
-        P[idx].runs[1].text = bold_lead
-        P[idx].runs[2].text = normal_rest
-        _blank_extra(P[idx], 3)
+        runs = P[idx].runs
+        if len(runs) >= 3:
+            runs[1].text = bold_lead
+            runs[2].text = normal_rest
+            _blank_extra(P[idx], 3)
+        else:
+            # 1p master: label run + ONE plain content run - keywords land unbolded
+            runs[1].text = bold_lead + normal_rest
+            _blank_extra(P[idx], 2)
     for label, (b, n) in cv.get("skills", {}).items():
         i = ix["skill_rows"].get(label.strip().lower())
         if i is None:
@@ -218,12 +229,13 @@ def apply_cv(doc, cv):
         for idx, txt in zip(slots, texts):
             _set_labeled(P[idx], txt)
         P[stack].runs[1].text = cv["lk_stack"]; _blank_extra(P[stack], 2)
-    # signature month
-    name = SIGNATURE_PREFIX + cv["sig_month"]
-    sg = ix.get("signature")
-    if sg is None:
-        raise RuntimeError("cv_tailor: signature line not found")
-    P[sg].runs[0].text = name; _blank_extra(P[sg], 1)
+    # signature month (the 1p master has no signature line; sig_month is rejected there upstream)
+    if "sig_month" in cv:
+        name = SIGNATURE_PREFIX + cv["sig_month"]
+        sg = ix.get("signature")
+        if sg is None:
+            raise RuntimeError("cv_tailor: signature line not found")
+        P[sg].runs[0].text = name; _blank_extra(P[sg], 1)
 
 def _locate_cl(P):
     """Body slots keyed off the salutation - the one line that always exists.
@@ -258,7 +270,9 @@ def apply_cl(doc, cl):
     c10 = t.rows[0].cells[1].paragraphs[0]
     c10.runs[0].text = OWNER["city"] + ", " + cl["date"]; _blank_extra(c10, 1)
     P = doc.paragraphs
-    P[1].runs[0].text = cl["tagline"]; _blank_extra(P[1], 1)
+    if "tagline" in cl:
+        raise RuntimeError("cv_tailor: cl['tagline'] is no longer tailored per application. "
+                           "The title under the name is fixed in the master - drop the key.")
     ix = _locate_cl(P)
     _set_single(P[ix["subject"]], cl["subject"])
     # Editorial caps, not page-fit caps: all three at their cap still render on one page with
@@ -274,6 +288,33 @@ def apply_cl(doc, cl):
         if key in cl and key in ix:            # ship fixed unless explicitly overridden
             _set_any(P[ix[key]], cl[key])
 
+def localize(docs, region, lang):
+    """Explain country-specific names for a reader abroad (spec["region"], e.g. "IN").
+
+    The masters are written for German readers: local city names, university abbreviations,
+    German grades and employer acronyms mean nothing to a recruiter abroad. The rewrite table lives in
+    config/owner.json -> localize.<REGION>.<LANG>, so the masters stay untouched and every
+    application to that region gets the same wording. A rule that matches nowhere is an
+    error: it means the master changed and the table has to follow.
+    """
+    rules = OWNER.get("localize", {}).get(region, {}).get(lang)
+    if not rules:
+        raise RuntimeError(f"cv_tailor: no localize rules for region {region}/{lang} in config/owner.json")
+    hits = [0] * len(rules)
+    for doc in docs:
+        for t in doc.element.body.iter(qn("w:t")):
+            for k, r in enumerate(rules):
+                if not t.text:
+                    continue
+                if r.get("exact"):
+                    if t.text == r["find"]:
+                        t.text = r["replace"]; hits[k] += 1
+                elif r["find"] in t.text:
+                    t.text = t.text.replace(r["find"], r["replace"]); hits[k] += 1
+    missed = [r["find"] for r, h in zip(rules, hits) if not h]
+    if missed:
+        raise RuntimeError(f"cv_tailor: localize rules matched nothing (master changed?): {missed}")
+
 # Deliverable filenames, per language. The recruiter sees these, so they are words, not slugs.
 DOC_NAMES = {"DE": ("LEBENSLAUF", "ANSCHREIBEN"), "EN": ("CV", "COVER_LETTER")}
 
@@ -281,14 +322,32 @@ def out_names(ref, lang, ext="pdf"):
     cv_name, cl_name = DOC_NAMES[lang]
     return f"output/{ref}_{cv_name}.{ext}", f"output/{ref}_{cl_name}.{ext}"
 
+def _compact_master(cvm):
+    """Path of the one-page master next to the long one (DE `_1S`, EN `_1p`)."""
+    if "Lebenslauf_" in cvm:
+        return cvm.replace(".docx", "_1S.docx")
+    return cvm.replace(".docx", "_1p.docx")
+
 def tailor(spec):
     os.chdir(ROOT)
     ref, lang = spec["ref"], spec["lang"]
     cvm, clm = MASTERS[lang]
+    # variant "1p": company/HR employers get the one-pager (CLAUDE.md §4);
+    # academic employers stay on the default two-pager.
+    if spec.get("variant") == "1p":
+        cvm = _compact_master(cvm)
+        cv = spec["cv"]
+        bad = sorted(k for k in cv if k.startswith("lk_") or k == "sig_month")
+        if bad:
+            raise RuntimeError("cv_tailor: %s not supported on the 1p variant - the one-pager "
+                               "has no wildcard-project block and no signature line." % ", ".join(bad))
     cv_out, cl_out = out_names(ref, lang, "docx")
     shutil.copy(cvm, cv_out); shutil.copy(clm, cl_out)
-    cvd = Document(cv_out); apply_cv(cvd, spec["cv"]); cvd.save(cv_out)
-    cld = Document(cl_out); apply_cl(cld, spec["cl"]); cld.save(cl_out)
+    cvd = Document(cv_out); apply_cv(cvd, spec["cv"])
+    cld = Document(cl_out); apply_cl(cld, spec["cl"])
+    if spec.get("region"):                     # applying abroad: explain the German specifics
+        localize((cvd, cld), spec["region"], lang)
+    cvd.save(cv_out); cld.save(cl_out)
     return cv_out, cl_out
 
 if __name__ == "__main__":

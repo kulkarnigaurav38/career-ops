@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <style>
+    body { font-family: system-ui, "Segoe UI", Arial; width: 380px; margin: 0; padding: 10px; color: #1a1a1a; }
+    h1 { font-size: 14px; margin: 0 0 8px; color: #1F4E5F; }
+    button { background: #1F4E5F; color: #fff; border: 0; border-radius: 6px; padding: 7px 10px; margin: 0 4px 8px 0; cursor: pointer; font-size: 12px; }
+    button.sec { background: #e8eef0; color: #1F4E5F; }
+    #status { font-size: 11px; color: #555; margin: 4px 0 8px; min-height: 14px; }
+    #list { max-height: 300px; overflow: auto; }
+    .row { border-top: 1px solid #eee; padding: 5px 0; }
+    .lbl { font-size: 11px; color: #333; margin-bottom: 2px; display: flex; justify-content: space-between; gap: 6px; }
+    .src { font-size: 9px; border-radius: 3px; padding: 1px 5px; color: #fff; white-space: nowrap; }
+    .src.Regel { background: #3f8f5f; } .src.Claude { background: #c9660b; } .src.Gelernt { background: #6a52c9; } .src.leer { background: #bbb; }
+    .src.PDF { background: #1F4E5F; } .src.PDF_fehlt { background: #b33; }
+    input.val { width: 100%; box-sizing: border-box; font-size: 12px; padding: 4px; border: 1px solid #ccc; border-radius: 4px; }
+    #docs { font-size: 11px; margin-top: 8px; }
+    #docs .hit { background: #f4f6f7; border-radius: 5px; padding: 6px; margin-bottom: 5px; }
+    input.val[readonly] { background: #f4f6f7; color: #1F4E5F; cursor: default; }
+    .foot { margin-top: 8px; font-size: 10px; }
+    a { color: #1F4E5F; }
+  </style>
+</head>
+<body>
+  <h1>Bewerbungs-Autofill</h1>
+  <div>
+    <button id="scan">1 · Scannen</button>
+    <button id="llm" class="sec">2 · KI-Restfelder</button>
+    <button id="fill">3 · Ausfüllen</button>
+  </div>
+  <div id="status">Bereit. Öffne ein Bewerbungsformular und klicke „Scannen".</div>
+  <div id="list"></div>
+
+  <div id="docs"></div>
+
+  <div class="foot">Nichts wird automatisch abgeschickt. · <a href="options.html" target="_blank">Profil bearbeiten</a></div>
+  <script src="dictionary.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

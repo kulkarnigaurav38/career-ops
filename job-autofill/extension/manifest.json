@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "Bewerbungs-Autofill (Hybrid)",
+  "version": "0.3.0",
+  "description": "Fuellt Bewerbungsformulare aus: Regeln + Gemini mit Job-Kontext, lernt aus Korrekturen, haengt CV/Anschreiben automatisch an. Sendet nie ab.",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage",
+    "tabs"
+  ],
+  "host_permissions": [
+    "http://localhost:8787/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Bewerbung ausfuellen"
+  },
+  "options_page": "options.html"
+}

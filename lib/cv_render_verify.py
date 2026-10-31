@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Render the tailored {REF} DOCX pair to PDF, delete scratch DOCX, verify.
-Checks (per CLAUDE.md): CV = 2 pages / 20 unique links / 0 AI-tells / no duplicated project title ;
+Checks (per CLAUDE.md): CV = 2 pages / 21 unique links / 0 AI-tells / no duplicated project title ;
 CL = 1 page / 0 AI-tells / no [PLACEHOLDER leak / no stale content / no verbless 'Sie <Noun>:' /
      no bolded skill the tailored CV does not carry (the letter is written FROM the CV).
 Deliverables: output/{REF}_LEBENSLAUF|_CV .pdf and output/{REF}_ANSCHREIBEN|_COVER_LETTER .pdf
@@ -9,7 +9,8 @@ Usage: python3 lib/cv_render_verify.py REF [REF ...]   -> prints PASS/FAIL per r
 # Master invariant. Bumped 16 -> 19 when OPEN SOURCE + HACKATHONS were added
 # (OPEN SOURCE + HACKATHONS), then 19 -> 20 when Pathfinding-Visualization got its own
 # repo URL instead of reusing the portfolio link. Keep in sync with CLAUDE.md.
-EXPECTED_LINKS = 20
+EXPECTED_LINKS = 21
+EXPECTED_PAGES_1P, EXPECTED_LINKS_1P = 1, 17  # one-page variant (company/HR applications)
 import os, re, sys, subprocess
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import owner_config
@@ -51,22 +52,40 @@ def resolve(ref, ext):
           if f.endswith((f"_COVER_LETTER.{ext}", f"_ANSCHREIBEN.{ext}"))]
     return (cv[0] if cv else None), (cl[0] if cl else None)
 
-SKILL_LABELS = ("Programmierung:", "Programming:", "KI / ML:", "AI / ML:", "LLM-Stack:",
-                "LLM Stack:", "ML-Frameworks:", "ML Frameworks:", "LLM-Infrastruktur:",
-                "LLM Infrastructure:", "Backend:", "Frontend & Daten:", "Frontend & Data:",
-                "DevOps & Cloud:", "Testen:", "Testing:")
+# A skills row is "<Label>: items". Matched by shape, not by a label list: the old hardcoded
+# list ("Programmierung:", "LLM-Stack:", ...) went stale when the masters renamed their rows,
+# so no current row ever matched and a wrapped skills row still reported wraps=0.
+SKILL_ROW = re.compile(r"^[A-ZÄÖÜ][\w /&.()+-]{1,32}: ")
+SKILL_HEADINGS = ("SKILLS", "KENNTNISSE")
 
 def wrapped_lines(pdf):
-    """Count bullets and skills rows that spill onto a second line."""
+    """Count bullets and skills rows that spill onto a second line.
+
+    Inside SKILLS/KENNTNISSE every line must be one "<Label>: ..." row - anything else is a
+    row that wrapped. Elsewhere a bullet followed by a line that is not a new bullet, row,
+    Tech:/Stack: line, heading or entry head is a wrapped bullet.
+    """
     import pdfplumber
     n = 0
+    in_skills = False
     for pg in pdfplumber.open(pdf).pages:
         lines = [l.strip() for l in (pg.extract_text() or "").split("\n")]
         for i, l in enumerate(lines):
-            if not (l.startswith("\u2022") or l.startswith(SKILL_LABELS)):
+            if not l:
+                continue
+            if l in SKILL_HEADINGS:
+                in_skills = True; continue
+            if in_skills:
+                if SKILL_ROW.match(l):
+                    continue
+                if l.isupper():                  # next section heading ends the block
+                    in_skills = False
+                else:
+                    n += 1; continue
+            if not l.startswith("\u2022"):
                 continue
             nxt = lines[i + 1] if i + 1 < len(lines) else ""
-            if not nxt or nxt.startswith("\u2022") or nxt.startswith(SKILL_LABELS) \
+            if not nxt or nxt.startswith("\u2022") or SKILL_ROW.match(nxt) \
                or nxt.startswith(("Tech:", "Stack:")) or nxt.isupper() or "|" in nxt:
                 continue
             if " - " in nxt or nxt.endswith(")") and "(" not in nxt:
@@ -92,7 +111,7 @@ def cl_unbacked(cl_pdf, cv_pdf):
     out = []
     for pg in pdfplumber.open(cl_pdf).pages:
         ws = pg.extract_words(extra_attrs=["fontname"])
-        sal = [w["top"] for w in ws if w["text"].strip(",") in ("Sehr", "Dear")]
+        sal = [w["top"] for w in ws if w["text"].strip(",") in ("Sehr", "Dear", "Guten", "Hallo")]
         body_top = min(sal) + 5 if sal else 240
         sig = [w["top"] for w in ws if w["text"] in ("Mit", "Kind")]
         body_bot = min(sig) if sig else 1e9
@@ -147,7 +166,11 @@ def verify(ref):
     else:
         res["cl"] = "skipped (CV-only)"
         cl_ok = True
-    ok = (res["cv_pages"] == 2 and res["cv_links"] == EXPECTED_LINKS
+    # a 1-page CV is the deliberate compact variant (company/HR applications) -
+    # accept it with its own page/link expectations, everything else unchanged.
+    cv_shape_ok = ((res["cv_pages"] == 2 and res["cv_links"] == EXPECTED_LINKS) or
+                   (res["cv_pages"] == EXPECTED_PAGES_1P and res["cv_links"] == EXPECTED_LINKS_1P))
+    ok = (cv_shape_ok
           and res["cv_tells"] == 0 and res["cv_umlaut"] == 0
           and res["cv_lkdup"] == 0 and res["cv_wraps"] == 0 and cl_ok)
     res["PASS"] = ok
